@@ -4,10 +4,12 @@ from functools import lru_cache
 from pathlib import Path
 import joblib
 import pandas as pd
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ConfigDict
 ROOT=Path(__file__).resolve().parent
+load_dotenv(ROOT/".env")
 ARTIFACTS=ROOT/"artifacts"; ARTIFACTS.mkdir(exist_ok=True)
 MODEL_PATH=ARTIFACTS/"churn_pipeline.joblib"
 TRAIN_URL=os.getenv("TRAIN_DATA_URL","https://raw.githubusercontent.com/jooryA/SWE485-Project-Group6/Interactive-UI/Dataset/Processed/train_selected.csv")

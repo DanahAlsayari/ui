@@ -27,7 +27,7 @@ export default function ChurnPrediction({ apiUrl }) {
     setResult(null);
 
     if (Object.values(customer).some((value) => value === "")) {
-      setError("Please adjust all customer sliders and complete every field before predicting.");
+      setError("Please complete all customer fields before predicting.");
       setLoading(false);
       return;
     }
@@ -109,11 +109,11 @@ export default function ChurnPrediction({ apiUrl }) {
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
-              ) : (
+              ) : field.min === 0 && field.max === 1 ? (
                 <div className="customer-slider">
                   <div className="customer-slider-heading">
                     <span>Value</span>
-                    <strong>{customer[field.name] === "" ? "Not set" : Number(customer[field.name]).toLocaleString()}</strong>
+                    <strong>{customer[field.name] === "" ? "Not set" : Number(customer[field.name]).toFixed(2)}</strong>
                   </div>
                   <input
                     type="range"
@@ -122,13 +122,23 @@ export default function ChurnPrediction({ apiUrl }) {
                     step={field.step}
                     value={customer[field.name] === "" ? field.min : customer[field.name]}
                     aria-label={field.label}
-                    onChange={(event) => updateCustomer(field.name, Number(event.target.value))}
+                    onChange={(event) => updateCustomer(field.name, event.target.value)}
                   />
                   <div className="customer-slider-limits">
-                    <span>{field.min.toLocaleString()}</span>
-                    <span>{field.max.toLocaleString()}</span>
+                    <span>{field.min}</span>
+                    <span>{field.max}</span>
                   </div>
                 </div>
+              ) : (
+                <input
+                  type="number"
+                  min={field.min}
+                  max={field.max}
+                  step={field.step}
+                  value={customer[field.name]}
+                  placeholder="Enter value"
+                  onChange={(event) => updateCustomer(field.name, event.target.value)}
+                />
               )}
             </label>
           ))}

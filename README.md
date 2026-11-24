@@ -10,6 +10,28 @@ Executive decision-support dashboard for the SWE485 retail customer churn projec
 - Segmentation: team-reported K-Means (k=3) and GMM (k=4) profiles and validation metrics
 - GenAI: Google Gemini using the project's Zero-shot / Few-shot report approach
 
+## Project structure
+
+```text
+src/
+├── components/
+│   └── Layout.jsx                 # Shared sidebar, page heading, KPI cards, and notice
+├── pages/
+│   ├── Overview.jsx               # Executive dashboard and API status
+│   ├── ChurnPrediction.jsx        # Customer form and churn prediction results
+│   ├── CustomerSegments.jsx       # K-Means segment profiles and metrics
+│   └── GenAIRecommendations.jsx   # Zero-shot / Few-shot Gemini workflow
+├── App.jsx                        # Navigation, shared layout, and API health check
+├── data.js                        # Project figures, form options, and default values
+├── main.jsx                       # React application entry point
+└── styles.css                     # Shared dashboard styling
+
+backend/
+└── main.py                        # FastAPI schemas, model pipeline, and API endpoints
+```
+
+Each dashboard page is maintained in its own file under `src/pages/`. Reusable interface elements are grouped in `src/components/Layout.jsx`, while project figures and form configuration stay in `src/data.js`.
+
 ## Run locally
 
 ### Backend

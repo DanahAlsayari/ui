@@ -1,62 +1,65 @@
-import { ArrowUpRight } from "lucide-react";
 import { drivers, kpis } from "../data";
-import { PageHeading, sections, StatCards } from "../components/Layout";
+import { PageHeading, StatCards } from "../components/Layout";
 
-// Landing page: summarizes project results and current API connectivity.
-export default function Overview({ setPage, health }) {
+// Overview page: headline KPIs, key churn drivers, and backend connectivity.
+export default function Overview({ health }) {
   return (
     <>
       <PageHeading
         eyebrow="EXECUTIVE DECISION SUPPORT"
-        title="Executive overview"
-        subtitle="A decision-support view of retail customer churn, behavioral segments, and retention opportunities."
+        title="Overview"
+        subtitle="A summary of customer churn, behavioral signals, and retention opportunities."
       />
 
-      <StatCards items={kpis} />
+      {/* KPI summaries provide a quick snapshot of the project dataset and model. */}
+      <section className="overview-section">
+        <div className="overview-section-heading">
+          <h2>KPI summaries</h2>
+          <p>Key performance indicators from the team's analysis.</p>
+        </div>
+        <StatCards items={kpis} />
+      </section>
 
-      {/* Key behavioral signals reported by the team's exploratory analysis. */}
-      <section className="panel drivers-panel">
+      {/* Key drivers are visualized by correlation strength and direction. */}
+      <section className="panel drivers-panel overview-drivers">
         <div className="panel-heading">
           <div>
-            <h3>Customer behavior signals</h3>
+            <h3>Key driver charts</h3>
             <p>Correlation with churn_flag reported in the team's exploratory analysis.</p>
           </div>
           <span className="soft-tag">EDA FINDINGS</span>
         </div>
 
-        <div className="driver-insights">
-          {drivers.map((driver) => (
-            <div className="driver-insight" key={driver.name}>
-              <i className="driver-dot" style={{ background: driver.tone }} />
-              <div>
-                <b>{driver.name}</b>
-                <small>{driver.detail}</small>
+        <div className="driver-chart-list">
+          {drivers.map((driver) => {
+            const strength = Math.min((Math.abs(Number(driver.value.match(/[0-9.]+/)?.[0])) / 0.8) * 100, 100);
+            const isNegative = driver.value.includes("−") || driver.value.includes("-");
+            return (
+              <div className="driver-chart-row" key={driver.name}>
+                <div className="driver-chart-label">
+                  <b>{driver.name}</b>
+                  <small>{driver.detail}</small>
+                </div>
+                <div className="driver-chart-track">
+                  <i
+                    className={isNegative ? "negative-driver" : "positive-driver"}
+                    style={{ width: `${strength}%`, background: driver.tone }}
+                  />
+                </div>
+                <strong>{driver.value}</strong>
               </div>
-              <strong>{driver.value}</strong>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <p className="fine-print">
-          Correlation describes association in the project dataset; it does not
-          establish causation or individual feature importance.
+          Bars show the absolute correlation magnitude; the sign indicates direction.
+          Correlation describes association and does not establish causation or
+          individual feature importance.
         </p>
       </section>
 
-      {/* Shortcuts make the other dashboard sections easy to discover. */}
-      <section className="section-links">
-        {sections
-          .filter((section) => section.id !== "overview")
-          .map(({ id, label, icon: Icon }) => (
-            <button className="section-link" key={id} onClick={() => setPage(id)}>
-              <span className="section-link-icon"><Icon size={18} /></span>
-              <span>{label}</span>
-              <ArrowUpRight size={15} />
-            </button>
-          ))}
-      </section>
-
-      {/* Health information is supplied by GET /api/health in App.jsx. */}
+      {/* API status is read from GET /api/health in the shared application shell. */}
       <section className="panel service-panel">
         <div>
           <h3>System connectivity</h3>

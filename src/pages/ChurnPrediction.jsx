@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { Activity, AlertTriangle, RefreshCw, RotateCcw } from "lucide-react";
 import { customerFields, modelResults } from "../data";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
-import { clusteringResults, initialCustomer, segments as fallbackSegments } from "../data";
+import { clusteringResults, segments as fallbackSegments } from "../data";
 import { PageHeading, Notice } from "../components/Layout";
 
 const fields = [
@@ -31,7 +31,8 @@ const clusterDescriptions = {
 export default function CustomerSegments({ apiUrl }) {
   const [segmentData, setSegmentData] = useState(null);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState({ ...initialCustomer });
+  const emptyCustomer = Object.fromEntries(fields.map((field) => [field.name, ""]));
+  const [formData, setFormData] = useState(emptyCustomer);
   const [result, setResult] = useState(null);
   const [predicting, setPredicting] = useState(false);
   const [predictError, setPredictError] = useState("");
@@ -55,7 +56,7 @@ export default function CustomerSegments({ apiUrl }) {
   };
 
   const resetForm = () => {
-    setFormData({ ...initialCustomer });
+    setFormData({ ...emptyCustomer });
     setResult(null);
     setPredictError("");
   };
@@ -169,20 +170,21 @@ export default function CustomerSegments({ apiUrl }) {
                       value={formData[field.name]}
                       onChange={(event) => updateField(field.name, event.target.value, "select")}
                     >
+                      <option value="">Select {field.label.toLowerCase()}</option>
                       {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   ) : ["discount_usage_rate", "email_open_rate", "cart_abandonment_rate"].includes(field.name) ? (
                     <div className="customer-slider">
                       <div className="customer-slider-heading">
                         <span>Value</span>
-                        <strong>{Number(formData[field.name]).toFixed(2)}</strong>
+                        <strong>{formData[field.name] === "" ? "—" : Number(formData[field.name]).toFixed(2)}</strong>
                       </div>
                       <input
                         type="range"
                         min={field.min}
                         max={field.max}
                         step={field.step}
-                        value={formData[field.name]}
+                        value={formData[field.name] === "" ? field.min : formData[field.name]}
                         aria-label={field.label}
                         onChange={(event) => updateField(field.name, event.target.value, "number")}
                       />

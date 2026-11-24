@@ -1,26 +1,8 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
-import { clusteringResults, segments as fallbackSegments } from "../data";
+import { clusteringResults, customerFields as fields, segments as fallbackSegments } from "../data";
 import { PageHeading, Notice } from "../components/Layout";
-
-const fields = [
-  { name: "age_group", label: "Age group", type: "select", options: ["18-24", "25-34", "35-44", "45-54", "55+"] },
-  { name: "gender", label: "Gender", type: "select", options: ["Female", "Male", "Other"] },
-  { name: "region", label: "Region", type: "select", options: ["Central", "East", "North", "South", "West"] },
-  { name: "customer_segment", label: "Customer segment", type: "select", options: ["New", "Returning", "VIP", "Loyal"] },
-  { name: "preferred_channel", label: "Preferred channel", type: "select", options: ["In-Store", "Mobile App", "Online"] },
-  { name: "purchase_frequency", label: "Purchase frequency", min: 1, max: 60, step: 1 },
-  { name: "avg_order_value", label: "Average order value", min: 20.03, max: 400, step: 0.01 },
-  { name: "total_spent", label: "Total spent", min: 17.87, max: 28444.24, step: 0.01 },
-  { name: "recency_days", label: "Recency (days)", min: 1, max: 364, step: 1 },
-  { name: "website_visits", label: "Website visits", min: 2, max: 479, step: 1 },
-  { name: "loyalty_score", label: "Loyalty score", min: 10, max: 99, step: 1 },
-  { name: "engagement_score", label: "Engagement score", min: 10, max: 92, step: 0.5 },
-  { name: "discount_usage_rate", label: "Discount usage rate (0–1)", min: 0.05, max: 0.8, step: 0.01 },
-  { name: "email_open_rate", label: "Email open rate (0–1)", min: 0.05, max: 0.9, step: 0.01 },
-  { name: "cart_abandonment_rate", label: "Cart abandonment rate (0–1)", min: 0.05, max: 0.85, step: 0.01 },
-];
 
 const clusterColors = ["#756BF6", "#39B7A4", "#F0B75E"];
 const clusterDescriptions = {

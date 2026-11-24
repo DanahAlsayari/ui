@@ -46,7 +46,7 @@ export default function App() {
           {renderCurrentPage()}
 
           <footer>
-            <span>{shortName} · SWE485</span>
+       
             <span>
               <i />
               {health?.status === "ok"

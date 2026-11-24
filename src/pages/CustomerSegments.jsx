@@ -27,14 +27,10 @@ export default function CustomerSegments({ apiUrl }) {
       <PageHeading
         eyebrow="UNSUPERVISED LEARNING"
         title="Customer segments"
-        subtitle="K-Means customer profiles and churn patterns from the team's clustering analysis."
+        
       />
 
-      <Notice>
-        <b>Exploratory result:</b> Silhouette = {segmentData?.silhouette ?? "0.099"} and
-        Davies–Bouldin = {segmentData?.davies_bouldin ?? "2.448"}. The project reports
-        weak cluster separation; interpret groups cautiously.
-      </Notice>
+    
 
       {error && (
         <div className="error-panel">

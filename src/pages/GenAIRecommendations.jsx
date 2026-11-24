@@ -206,10 +206,6 @@ export default function GenAIRecommendations({ apiUrl }) {
         </section>
       </div>
 
-      <Notice>
-        <b>API key security:</b> Gemini credentials stay in backend/.env and are
-        never sent to the browser. A missing or invalid key returns a clear service error.
-      </Notice>
     </>
   );
 }

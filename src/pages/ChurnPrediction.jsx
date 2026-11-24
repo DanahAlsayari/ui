@@ -181,7 +181,6 @@ export default function ChurnPrediction({ apiUrl }) {
             </div>
           ))}
         </div>
-        <p className="fine-print">Reported offline evaluation on the team's 20,000-row test set (Phase 1). These are model evaluation metrics, while each live prediction's churn probability is an individual estimate—not a guarantee.</p>
       </section>
     </>
   );

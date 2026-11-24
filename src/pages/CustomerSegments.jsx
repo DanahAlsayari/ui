@@ -1,14 +1,41 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle } from "lucide-react";
-import { clusteringResults, segments as fallbackSegments } from "../data";
+import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { clusteringResults, initialCustomer, segments as fallbackSegments } from "../data";
 import { PageHeading, Notice } from "../components/Layout";
 
-// Descriptive K-Means profiles from the team's clustering analysis.
+const fields = [
+  { name: "age_group", label: "Age group", type: "select", options: ["18-24", "25-34", "35-44", "45-54", "55+"] },
+  { name: "gender", label: "Gender", type: "select", options: ["Female", "Male", "Other"] },
+  { name: "region", label: "Region", type: "select", options: ["Central", "East", "North", "South", "West"] },
+  { name: "customer_segment", label: "Customer segment", type: "select", options: ["New", "Returning", "VIP", "Loyal"] },
+  { name: "preferred_channel", label: "Preferred channel", type: "select", options: ["In-Store", "Mobile App", "Online"] },
+  { name: "purchase_frequency", label: "Purchase frequency", min: 1, max: 60, step: 1 },
+  { name: "avg_order_value", label: "Average order value", min: 20.03, max: 400, step: 0.01 },
+  { name: "total_spent", label: "Total spent", min: 17.87, max: 28444.24, step: 0.01 },
+  { name: "recency_days", label: "Recency (days)", min: 1, max: 364, step: 1 },
+  { name: "website_visits", label: "Website visits", min: 2, max: 479, step: 1 },
+  { name: "discount_usage_rate", label: "Discount usage rate (0–1)", min: 0.05, max: 0.8, step: 0.01 },
+  { name: "email_open_rate", label: "Email open rate (0–1)", min: 0.05, max: 0.9, step: 0.01 },
+  { name: "cart_abandonment_rate", label: "Cart abandonment rate (0–1)", min: 0.05, max: 0.85, step: 0.01 },
+  { name: "loyalty_score", label: "Loyalty score", min: 10, max: 99, step: 1 },
+  { name: "engagement_score", label: "Engagement score", min: 10, max: 92, step: 0.5 },
+];
+
+const clusterColors = ["#756BF6", "#39B7A4", "#F0B75E"];
+const clusterDescriptions = {
+  "High-Volume Buyers": "Customers who purchase frequently and spend the most. Retain their value with loyalty rewards and recognition.",
+  "Low-Engagement Customers": "Customers with fewer visits, lower email interaction, and the highest observed churn. Prioritize re-engagement campaigns.",
+  "Engaged Light Buyers": "Customers who respond well to engagement but purchase less often. Encourage more frequent purchases with relevant recommendations.",
+};
+
 export default function CustomerSegments({ apiUrl }) {
   const [segmentData, setSegmentData] = useState(null);
   const [error, setError] = useState("");
+  const [formData, setFormData] = useState({ ...initialCustomer });
+  const [result, setResult] = useState(null);
+  const [predicting, setPredicting] = useState(false);
+  const [predictError, setPredictError] = useState("");
 
-  // Load the verified segment summaries from the backend when this page mounts.
   useEffect(() => {
     fetch(`${apiUrl}/api/segments`)
       .then(async (response) => {
@@ -19,61 +46,187 @@ export default function CustomerSegments({ apiUrl }) {
       .catch((requestError) => setError(requestError.message));
   }, [apiUrl]);
 
-  // Keep the dashboard useful if the API is offline by using bundled project results.
   const rows = segmentData?.segments || fallbackSegments;
+
+  const updateField = (name, value, type) => {
+    setFormData((current) => ({ ...current, [name]: type === "select" ? value : value === "" ? "" : Number(value) }));
+    setResult(null);
+    setPredictError("");
+  };
+
+  const resetForm = () => {
+    setFormData({ ...initialCustomer });
+    setResult(null);
+    setPredictError("");
+  };
+
+  const identifyCluster = async (event) => {
+    event.preventDefault();
+    setPredicting(true);
+    setPredictError("");
+    setResult(null);
+    try {
+      const response = await fetch(`${apiUrl}/api/predict/cluster`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.detail || "Could not identify this customer's cluster.");
+      setResult(payload);
+    } catch (requestError) {
+      setPredictError(requestError.message);
+    } finally {
+      setPredicting(false);
+    }
+  };
 
   return (
     <>
       <PageHeading
         eyebrow="UNSUPERVISED LEARNING"
         title="Customer segments"
-        subtitle="K-Means customer profiles and churn patterns from the team's clustering analysis."
+        subtitle="Understand the three customer groups discovered by the project's K-Means model, then identify a customer's segment."
       />
 
-      <Notice>
-        <b>Exploratory result:</b> Silhouette = {segmentData?.silhouette ?? "0.099"} and
-        Davies–Bouldin = {segmentData?.davies_bouldin ?? "2.448"}. The project reports
-        weak cluster separation; interpret groups cautiously.
-      </Notice>
-
-      {error && (
-        <div className="error-panel">
-          <AlertTriangle size={16} />
-          {error} Showing verified project profiles bundled with this dashboard.
+      <section className="cluster-section">
+        <div className="cluster-section-heading">
+          <div>
+            <span className="section-kicker">01 · EXPLORE THE RESULTS</span>
+            <h2>Understand the Clusters</h2>
+            <p>Three customer groups identified from the 100,000-customer dataset.</p>
+          </div>
+          <span className="soft-tag">K-MEANS · K = 3</span>
         </div>
-      )}
 
-      {/* One card per K-Means group, using the team's recorded customer counts. */}
-      <section className="segment-cards">
-        {rows.map((segment, index) => {
-          const segmentColors = ["#756BF6", "#39B7A4", "#F0B75E"];
-          const color = segmentColors[index % segmentColors.length];
-          const churnRate = Number(segment.churn_rate ?? segment.churn);
+        <Notice>
+          <b>Exploratory result:</b> Silhouette = {segmentData?.silhouette ?? "0.099"} and
+          Davies–Bouldin = {segmentData?.davies_bouldin ?? "2.448"}. The original project notes
+          that groups overlap and should be interpreted as broad customer profiles.
+        </Notice>
 
-          return (
-            <article className="stat-card segment-detail" key={segment.name}>
-              <div className="segment-top">
-                <b>{segment.name}</b>
-                <i style={{ background: color }} />
-              </div>
-              <strong>{Number(segment.customers).toLocaleString("en-US")}</strong>
-              <small>customers · {Number(segment.share).toFixed(1)}% of dataset</small>
-              <div className="segment-bar">
-                <i style={{ width: `${segment.share}%`, background: color }} />
-              </div>
-              <div className="segment-churn">
-                <span>Observed churn rate</span>
-                <b>{churnRate.toFixed(2)}%</b>
-              </div>
-              <p>{segment.description || segment.desc}</p>
-              <span className="soft-tag">{segment.priority || "K-MEANS PROFILE"}</span>
-            </article>
-          );
-        })}
+        {error && (
+          <div className="error-panel">
+            <AlertTriangle size={16} />
+            {error} Showing the project's recorded cluster profiles.
+          </div>
+        )}
+
+        <div className="segment-cards cluster-profile-cards">
+          {rows.map((segment, index) => {
+            const color = clusterColors[index % clusterColors.length];
+            const churnRate = Number(segment.churn_rate ?? segment.churn);
+            const description = clusterDescriptions[segment.name] || segment.description || segment.desc;
+            return (
+              <article className="stat-card segment-detail" key={segment.name}>
+                <div className="segment-top">
+                  <b>{segment.name}</b>
+                  <i style={{ background: color }} />
+                </div>
+                <strong>{Number(segment.customers).toLocaleString("en-US")}</strong>
+                <small>customers · {Number(segment.share).toFixed(1)}% of dataset</small>
+                <div className="segment-bar">
+                  <i style={{ width: `${segment.share}%`, background: color }} />
+                </div>
+                <div className="segment-churn">
+                  <span>Observed churn rate</span>
+                  <b>{churnRate.toFixed(2)}%</b>
+                </div>
+                <p>{description}</p>
+                <span className="soft-tag">{segment.priority || "K-MEANS PROFILE"}</span>
+              </article>
+            );
+          })}
+        </div>
       </section>
 
-      {/* Validation metrics help explain why segment profiles should be interpreted carefully. */}
-      <div className="content-grid segment-grid">
+      <section className="cluster-section cluster-identify-section">
+        <div className="cluster-section-heading">
+          <div>
+            <span className="section-kicker">02 · APPLY THE MODEL</span>
+            <h2>Find a Customer's Cluster</h2>
+            <p>Enter the customer's 15 features and let the trained K-Means model assign a segment.</p>
+          </div>
+          <span className="model-live-label"><i /> MODEL-POWERED</span>
+        </div>
+
+        <div className="panel cluster-form-panel">
+          <div className="cluster-form-intro">
+            <div className="cluster-form-icon"><BrainCircuit size={19} /></div>
+            <div>
+              <h3>Customer information</h3>
+              <p>All fields are required. Use the same feature ranges as the project's original dataset.</p>
+            </div>
+            <button type="button" className="reset-button" onClick={resetForm}>
+              <RotateCcw size={12} /> Reset
+            </button>
+          </div>
+
+          <form onSubmit={identifyCluster}>
+            <div className="customer-fields cluster-customer-fields">
+              {fields.map((field) => (
+                <label className="customer-field" key={field.name}>
+                  <span>{field.label}</span>
+                  {field.type === "select" ? (
+                    <select
+                      value={formData[field.name]}
+                      onChange={(event) => updateField(field.name, event.target.value, "select")}
+                    >
+                      {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  ) : (
+                    <input
+                      type="number"
+                      min={field.min}
+                      max={field.max}
+                      step={field.step}
+                      required
+                      value={formData[field.name]}
+                      placeholder={`${field.min} – ${field.max}`}
+                      onChange={(event) => updateField(field.name, event.target.value, "number")}
+                    />
+                  )}
+                  {field.type !== "select" && (
+                    <small className="cluster-field-range">Range: {field.min} – {field.max}</small>
+                  )}
+                </label>
+              ))}
+            </div>
+
+            <div className="cluster-form-actions">
+              <span><Sparkles size={13} /> Uses the original Phase 2 K-Means pipeline</span>
+              <button className="primary-button" type="submit" disabled={predicting}>
+                {predicting ? <><LoaderCircle size={14} className="spin" /> Identifying...</> : <>Identify Customer Cluster <ArrowRight size={14} /></>}
+              </button>
+            </div>
+          </form>
+
+          {predictError && (
+            <div className="error-panel"><AlertTriangle size={16} />{predictError}</div>
+          )}
+
+          {result && (
+            <div className="cluster-result-panel">
+              <div className="cluster-result-top">
+                <div className="cluster-result-check"><CheckCircle2 size={18} /></div>
+                <div>
+                  <span className="section-kicker">MODEL ASSIGNMENT COMPLETE</span>
+                  <h3>{result.cluster_name}</h3>
+                  <p>Assigned by the trained K-Means model · Cluster {result.cluster + 1}</p>
+                </div>
+                <span className="cluster-result-dot" style={{ background: clusterColors[result.cluster] }} />
+              </div>
+              <div className="cluster-result-reasons">
+                <b>Why this customer belongs to this cluster</b>
+                {result.reason.map((reason) => <p key={reason}><i />{reason}</p>)}
+              </div>
+              <small className="cluster-result-note">{result.note}</small>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <div className="content-grid segment-grid cluster-validation-grid">
         <section className="panel">
           <div className="panel-heading">
             <div>
@@ -83,32 +236,20 @@ export default function CustomerSegments({ apiUrl }) {
           </div>
           <div className="table-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>Algorithm</th><th>Clusters</th><th>Silhouette</th><th>Davies–Bouldin</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Algorithm</th><th>Clusters</th><th>Silhouette</th><th>Davies–Bouldin</th></tr></thead>
               <tbody>
                 {clusteringResults.map((row) => (
                   <tr key={row.name}>
-                    <td><b>{row.name}</b></td>
-                    <td>{row.clusters}</td>
-                    <td>{row.silhouette}</td>
-                    <td>{row.daviesBouldin}</td>
+                    <td><b>{row.name}</b></td><td>{row.clusters}</td><td>{row.silhouette}</td><td>{row.daviesBouldin}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </section>
-
-        {/* Highlight the group with the highest recorded churn rate. */}
         <section className="panel">
           <div className="panel-heading">
-            <div>
-              <h3>Priority segment</h3>
-              <p>Highest observed churn rate.</p>
-            </div>
+            <div><h3>Priority segment</h3><p>Highest observed churn rate.</p></div>
             <span className="soft-tag">K-MEANS</span>
           </div>
           <div className="assessment">
@@ -116,10 +257,7 @@ export default function CustomerSegments({ apiUrl }) {
               <div><b>54.11%</b><small>Churn rate</small></div>
             </div>
             <span className="status high">Low-Engagement Customers</span>
-            <p>
-              31,485 customers · 17,036 churned. The project interpretation
-              prioritizes this group for re-engagement.
-            </p>
+            <p>31,485 customers · 17,036 churned. The project interpretation prioritizes this group for re-engagement.</p>
           </div>
         </section>
       </div>

@@ -96,7 +96,7 @@ CLUSTER_NAMES={0:"High-Volume Buyers",1:"Low-Engagement Customers",2:"Engaged Li
 
 class ClusterCustomerInput(BaseModel):
  model_config=ConfigDict(extra="forbid")
- age_group:str=Field(pattern=r"^(18-24|25-34|35-44|45-54|55\\+)$")
+ age_group:str=Field(pattern=r"^(18-24|25-34|35-44|45-54|55\+)$")
  gender:str=Field(pattern=r"^(Female|Male|Other)$")
  region:str=Field(pattern=r"^(Central|East|North|South|West)$")
  customer_segment:str=Field(pattern=r"^(New|Returning|VIP|Loyal)$")
@@ -230,12 +230,14 @@ def predict_cluster(payload:ClusterCustomerInput):
   name=CLUSTER_NAMES[cluster_id]
   profiles=artifact["profiles"]
   profile=profiles[cluster_id]
-  reasons={
-   0:["High purchase frequency and spending are the defining traits of this group.","Website visits and total spending are typically higher than the other groups."],
-   1:["Lower engagement and email interaction characterize this group.","Higher cart abandonment is a key pattern in this segment."],
-   2:["Engagement and email interaction are typically higher in this group.","Purchase frequency and total spending are lower than High-Volume Buyers."]
-  }
-  return {"status":"ok","algorithm":"K-Means","cluster":cluster_id,"cluster_name":name,"reason":reasons[cluster_id],"profile":profile,"note":"Assigned by the Phase 2 K-Means model (k=3) using the original 15 features, log1p transform on purchase_frequency/total_spent/website_visits, StandardScaler for numeric features, and OneHotEncoder for categorical features."}
+  customer=payload.model_dump()
+  if cluster_id==0:
+   reasons=[f"Purchase frequency ({customer['purchase_frequency']}) aligns with this group's high-volume buying pattern (cluster average: {profile['purchase_frequency']:.1f}).",f"Total spent ({customer['total_spent']:,.2f}) and website visits ({customer['website_visits']}) are evaluated as part of the group's purchasing-volume profile."]
+  elif cluster_id==1:
+   reasons=[f"Engagement score ({customer['engagement_score']:.1f}) and email open rate ({customer['email_open_rate']:.2f}) are consistent with this group's lower-engagement profile.",f"Cart abandonment rate ({customer['cart_abandonment_rate']:.2f}) is considered alongside the cluster's higher-abandonment pattern (cluster average: {profile['cart_abandonment_rate']:.2f})."]
+  else:
+   reasons=[f"Engagement score ({customer['engagement_score']:.1f}) and email open rate ({customer['email_open_rate']:.2f}) align with this group's stronger engagement profile.",f"Purchase frequency ({customer['purchase_frequency']}) is closer to the lighter-buying pattern than the High-Volume Buyers profile."]
+  return {"status":"ok","algorithm":"K-Means","cluster":cluster_id,"cluster_name":name,"reason":reasons,"profile":profile,"note":"Assigned by the Phase 2 K-Means model (k=3) using the original 15 features, log1p transform on purchase_frequency/total_spent/website_visits, StandardScaler for numeric features, and OneHotEncoder for categorical features."}
  except Exception as exc: raise HTTPException(status_code=503,detail=f"K-Means model unavailable: {exc}")
 
 # GenAI endpoint: sends the validated prediction context to Gemini server-side.

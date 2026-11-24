@@ -143,7 +143,6 @@ export default function CustomerSegments({ apiUrl }) {
           <div>
             <span className="section-kicker">02 · APPLY THE MODEL</span>
             <h2>Find a Customer's Cluster</h2>
-            <p>Enter the customer's 15 features and let the trained K-Means model assign a segment.</p>
           </div>
           <span className="model-live-label"><i /> MODEL-POWERED</span>
         </div>
@@ -153,7 +152,7 @@ export default function CustomerSegments({ apiUrl }) {
             <div className="cluster-form-icon"><BrainCircuit size={19} /></div>
             <div>
               <h3>Customer information</h3>
-              <p>All fields are required. Use the same feature ranges as the project's original dataset.</p>
+                 <p>Enter the customer’s feature values to identify customer cluster.</p>
             </div>
             <button type="button" className="reset-button" onClick={resetForm}>
               <RotateCcw size={12} /> Reset
@@ -209,7 +208,6 @@ export default function CustomerSegments({ apiUrl }) {
             </div>
 
             <div className="cluster-form-actions">
-              <span><Sparkles size={13} /> Uses the original Phase 2 K-Means pipeline</span>
               <button className="primary-button" type="submit" disabled={predicting}>
                 {predicting ? <><LoaderCircle size={14} className="spin" /> Identifying...</> : <>Identify Customer Cluster <ArrowRight size={14} /></>}
               </button>

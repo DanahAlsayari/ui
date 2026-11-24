@@ -84,6 +84,64 @@ SEGMENTS=[
 ]
 
 # -----------------------------------------------------------------------------
+# Train the exact Phase 2 K-Means model and keep its preprocessing with it.
+# -----------------------------------------------------------------------------
+CLUSTER_DATA_URL=os.getenv("CLUSTER_DATA_URL","https://raw.githubusercontent.com/jooryA/SWE485-Project-Group6/main/Dataset/retail_customer_churn.csv")
+CLUSTER_MODEL_PATH=ARTIFACTS/"kmeans_segments_phase2.joblib"
+CLUSTER_NUMERIC=["purchase_frequency","avg_order_value","total_spent","recency_days","website_visits","discount_usage_rate","email_open_rate","cart_abandonment_rate","loyalty_score","engagement_score"]
+CLUSTER_CATEGORICAL=["age_group","gender","region","customer_segment","preferred_channel"]
+CLUSTER_FEATURES=CLUSTER_NUMERIC+CLUSTER_CATEGORICAL
+SKEWED_CLUSTER_FEATURES=["purchase_frequency","total_spent","website_visits"]
+CLUSTER_NAMES={0:"High-Volume Buyers",1:"Low-Engagement Customers",2:"Engaged Light Buyers"}
+
+class ClusterCustomerInput(BaseModel):
+ model_config=ConfigDict(extra="forbid")
+ age_group:str=Field(pattern=r"^(18-24|25-34|35-44|45-54|55\+)$")
+ gender:str=Field(pattern=r"^(Female|Male|Other)$")
+ region:str=Field(pattern=r"^(Central|East|North|South|West)$")
+ customer_segment:str=Field(pattern=r"^(New|Returning|VIP|Loyal)$")
+ preferred_channel:str=Field(pattern=r"^(In-Store|Mobile App|Online)$")
+ purchase_frequency:int=Field(ge=1,le=60)
+ avg_order_value:float=Field(ge=20.03,le=400)
+ total_spent:float=Field(ge=17.87,le=28444.24)
+ recency_days:int=Field(ge=1,le=364)
+ website_visits:int=Field(ge=2,le=479)
+ discount_usage_rate:float=Field(ge=0.05,le=0.80)
+ email_open_rate:float=Field(ge=0.05,le=0.90)
+ cart_abandonment_rate:float=Field(ge=0.05,le=0.85)
+ loyalty_score:float=Field(ge=10,le=99)
+ engagement_score:float=Field(ge=10,le=92)
+
+@lru_cache(maxsize=1)
+def get_cluster_model():
+ if CLUSTER_MODEL_PATH.exists():
+  try:return joblib.load(CLUSTER_MODEL_PATH)
+  except Exception:CLUSTER_MODEL_PATH.unlink(missing_ok=True)
+ from sklearn.cluster import KMeans
+ from sklearn.compose import ColumnTransformer
+ from sklearn.preprocessing import OneHotEncoder,StandardScaler
+ frame=pd.read_csv(CLUSTER_DATA_URL)
+ if any(c not in frame.columns for c in CLUSTER_FEATURES+["churn_flag"]):
+  raise RuntimeError("The Phase 2 clustering dataset does not match the original 15-feature schema.")
+ X=frame[CLUSTER_FEATURES].copy()
+ X[SKEWED_CLUSTER_FEATURES]=X[SKEWED_CLUSTER_FEATURES].apply(pd.to_numeric).apply(lambda col: __import__("numpy").log1p(col))
+ X[CLUSTER_CATEGORICAL]=X[CLUSTER_CATEGORICAL].astype(object)
+ preprocessor=ColumnTransformer(transformers=[
+  ("num",StandardScaler(),CLUSTER_NUMERIC),
+  ("cat",OneHotEncoder(handle_unknown="ignore",sparse_output=False),CLUSTER_CATEGORICAL),
+ ])
+ transformed=preprocessor.fit_transform(X)
+ model=KMeans(n_clusters=3,random_state=42,n_init=10).fit(transformed)
+ raw_profiles=frame.assign(raw=model.labels_).groupby("raw")[["purchase_frequency","engagement_score"]].mean()
+ volume=int(raw_profiles["purchase_frequency"].idxmax())
+ low=int(raw_profiles.drop(volume)["engagement_score"].idxmin())
+ engaged=next(int(label) for label in raw_profiles.index if int(label) not in (volume,low))
+ label_map={volume:0,low:1,engaged:2}
+ artifact={"preprocessor":preprocessor,"model":model,"label_map":label_map,"profiles":frame.assign(segment=[label_map[int(v)] for v in model.labels_]).groupby("segment")[CLUSTER_NUMERIC].mean().to_dict(orient="index")}
+ joblib.dump(artifact,CLUSTER_MODEL_PATH)
+ return artifact
+
+# -----------------------------------------------------------------------------
 # Prompt templates used by the GenAI recommendations endpoint
 # -----------------------------------------------------------------------------
 ZERO_SHOT="""You are a customer retention analyst preparing a concise report for business executives.
@@ -158,6 +216,29 @@ def predict_churn(payload:CustomerInput):
 @app.get("/api/segments")
 def segments():
  return {"status":"ok","algorithm":"K-Means (k=3)","silhouette":0.099,"davies_bouldin":2.448,"overall_churn_rate":46.22,"segments":SEGMENTS,"warning":"The project reports weak cluster separation. Treat these as exploratory descriptive groups, not definitive personas or new-customer assignments."}
+
+# Live K-Means assignment using the saved Phase 2 preprocessing and model.
+@app.post("/api/predict/cluster")
+def predict_cluster(payload:ClusterCustomerInput):
+ try:
+  artifact=get_cluster_model()
+  row=pd.DataFrame([payload.model_dump()],columns=CLUSTER_FEATURES)
+  row[SKEWED_CLUSTER_FEATURES]=row[SKEWED_CLUSTER_FEATURES].apply(pd.to_numeric).apply(lambda col: __import__("numpy").log1p(col))
+  row[CLUSTER_CATEGORICAL]=row[CLUSTER_CATEGORICAL].astype(object)
+  raw=int(artifact["model"].predict(artifact["preprocessor"].transform(row))[0])
+  cluster_id=int(artifact["label_map"][raw])
+  name=CLUSTER_NAMES[cluster_id]
+  profiles=artifact["profiles"]
+  profile=profiles[cluster_id]
+  customer=payload.model_dump()
+  if cluster_id==0:
+   reasons=[f"Purchase frequency ({customer['purchase_frequency']}) aligns with this group's high-volume buying pattern (cluster average: {profile['purchase_frequency']:.1f}).",f"Total spent ({customer['total_spent']:,.2f}) and website visits ({customer['website_visits']}) are evaluated as part of the group's purchasing-volume profile."]
+  elif cluster_id==1:
+   reasons=[f"Engagement score ({customer['engagement_score']:.1f}) and email open rate ({customer['email_open_rate']:.2f}) are consistent with this group's lower-engagement profile.",f"Cart abandonment rate ({customer['cart_abandonment_rate']:.2f}) is considered alongside the cluster's higher-abandonment pattern (cluster average: {profile['cart_abandonment_rate']:.2f})."]
+  else:
+   reasons=[f"Engagement score ({customer['engagement_score']:.1f}) and email open rate ({customer['email_open_rate']:.2f}) align with this group's stronger engagement profile.",f"Purchase frequency ({customer['purchase_frequency']}) is closer to the lighter-buying pattern than the High-Volume Buyers profile."]
+  return {"status":"ok","algorithm":"K-Means","cluster":cluster_id,"cluster_name":name,"reason":reasons,"profile":profile,"note":"Assigned by the Phase 2 K-Means model (k=3) using the original 15 features, log1p transform on purchase_frequency/total_spent/website_visits, StandardScaler for numeric features, and OneHotEncoder for categorical features."}
+ except Exception as exc: raise HTTPException(status_code=503,detail=f"K-Means model unavailable: {exc}")
 
 # GenAI endpoint: sends the validated prediction context to Gemini server-side.
 @app.post("/api/insights")

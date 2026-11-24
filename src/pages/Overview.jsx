@@ -1,3 +1,4 @@
+import React from "react";
 import { drivers, kpis } from "../data";
 import { PageHeading, StatCards } from "../components/Layout";
 

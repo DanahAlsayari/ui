@@ -93,11 +93,6 @@ export default function ChurnPrediction({ apiUrl }) {
           {customerFields.map((field) => (
             <label className="customer-field" key={field.name}>
               <span>{field.label}</span>
-              <small className="field-range">
-                {field.options
-                  ? `Available values: ${field.options.join(", ")}`
-                  : `Allowed range: ${field.min} – ${field.max}`}
-              </small>
               {field.options ? (
                 <select
                   value={customer[field.name]}
@@ -116,7 +111,7 @@ export default function ChurnPrediction({ apiUrl }) {
                   max={field.max}
                   step={field.step}
                   value={customer[field.name]}
-                  placeholder="Enter value"
+                  placeholder={`Range: ${field.min} – ${field.max}`}
                   onChange={(event) =>
                     updateCustomer(
                       field.name,

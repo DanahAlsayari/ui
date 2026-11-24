@@ -228,9 +228,9 @@ export const customerFields = [
   { name: "total_spent", label: "Total spent", min: 0, max: 10000000, step: 0.01 },
   { name: "recency_days", label: "Recency (days)", min: 0, max: 10000, step: 1 },
   { name: "website_visits", label: "Website visits", min: 0, max: 100000, step: 1 },
+  { name: "loyalty_score", label: "Loyalty score", min: 0, max: 100, step: 0.1 },
+  { name: "engagement_score", label: "Engagement score", min: 0, max: 100, step: 0.1 },
   { name: "discount_usage_rate", label: "Discount usage rate (0–1)", min: 0, max: 1, step: 0.01 },
   { name: "email_open_rate", label: "Email open rate (0–1)", min: 0, max: 1, step: 0.01 },
   { name: "cart_abandonment_rate", label: "Cart abandonment rate (0–1)", min: 0, max: 1, step: 0.01 },
-  { name: "loyalty_score", label: "Loyalty score", min: 0, max: 100, step: 0.1 },
-  { name: "engagement_score", label: "Engagement score", min: 0, max: 100, step: 0.1 },
 ];

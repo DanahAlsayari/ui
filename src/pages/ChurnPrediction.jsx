@@ -85,6 +85,11 @@ export default function ChurnPrediction({ apiUrl }) {
           {customerFields.map((field) => (
             <label className="customer-field" key={field.name}>
               <span>{field.label}</span>
+              <small className="field-range">
+                {field.options
+                  ? `Available values: ${field.options.join(", ")}`
+                  : `Allowed range: ${field.min} – ${field.max}`}
+              </small>
               {field.options ? (
                 <select
                   value={customer[field.name]}

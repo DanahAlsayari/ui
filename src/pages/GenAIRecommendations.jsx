@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { AlertTriangle, BrainCircuit, CheckCircle2, RefreshCw, Sparkles } from "lucide-react";
 import { genaiMethods, initialCustomer } from "../data";

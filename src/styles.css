@@ -143,6 +143,9 @@ button {
 }
 
 .nav-item {
+    appearance: none;
+    border: 0;
+    background: transparent;
     display: flex;
     width: 100%;
     align-items: center;
@@ -1428,8 +1431,11 @@ footer i {
     margin-top: 22px;
 }
 
-.simple-nav .nav-item {
+ .simple-nav .nav-item {
     min-height: 44px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 .simple-nav .nav-item span {

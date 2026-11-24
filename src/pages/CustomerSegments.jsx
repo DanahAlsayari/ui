@@ -86,24 +86,22 @@ export default function CustomerSegments({ apiUrl }) {
       <PageHeading
         eyebrow="UNSUPERVISED LEARNING"
         title="Customer segments"
-        subtitle="Understand the three customer groups discovered by the project's K-Means model, then identify a customer's segment."
       />
 
       <section className="cluster-section">
         <div className="cluster-section-heading">
           <div>
-            <span className="section-kicker">01 · EXPLORE THE RESULTS</span>
+          
             <h2>Understand the Clusters</h2>
-            <p>Three customer groups identified from the 100,000-customer dataset.</p>
+       
           </div>
           <span className="soft-tag">K-MEANS · K = 3</span>
+          <span className="soft-tag"> Silhouette = 0.099 </span>
+          <span className="soft-tag"> Davies–Bouldin = 2.448 </span>
+
         </div>
 
-        <Notice>
-          <b>Exploratory result:</b> Silhouette = {segmentData?.silhouette ?? "0.099"} and
-          Davies–Bouldin = {segmentData?.davies_bouldin ?? "2.448"}. The original project notes
-          that groups overlap and should be interpreted as broad customer profiles.
-        </Notice>
+       
 
         {error && (
           <div className="error-panel">

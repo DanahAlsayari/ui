@@ -182,7 +182,10 @@ export default function ChurnPrediction({ apiUrl }) {
             </thead>
             <tbody>
               {modelResults.map((model) => (
-                <tr key={model.name}>
+                <tr
+                  key={model.name}
+                  className={model.name === "Logistic Regression · Baseline" ? "selected-model-row" : ""}
+                >
                   <td><b>{model.name}</b></td>
                   <td>{model.accuracy}</td>
                   <td>{model.precision}</td>

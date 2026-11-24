@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { clusteringResults, segments as fallbackSegments } from "../data";

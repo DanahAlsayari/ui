@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { LayoutDashboard, Activity, Users, Sparkles, Command } from 'lucide-react';
 import { kpis, drivers } from './data';
 
@@ -26,13 +27,8 @@ function Sidebar({ page, setPage }) {
       <div className="sidebar-head"><Brand /></div>
       <nav className="simple-nav">
         {sections.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            className={'nav-item ' + (page === id ? 'nav-active' : '')}
-            onClick={() => setPage(id)}
-          >
-            <Icon size={18} />
-            <span>{label}</span>
+          <button key={id} className={'nav-item ' + (page === id ? 'nav-active' : '')} onClick={() => setPage(id)}>
+            <Icon size={18} /><span>{label}</span>
           </button>
         ))}
       </nav>
@@ -50,7 +46,6 @@ function Overview({ setPage }) {
           <p>A concise view of the key customer intelligence metrics.</p>
         </div>
       </div>
-
       <section className="stats-grid">
         {kpis.map((kpi, index) => (
           <article className="stat-card" key={kpi.label}>
@@ -65,13 +60,9 @@ function Overview({ setPage }) {
           </article>
         ))}
       </section>
-
       <section className="panel drivers-panel">
         <div className="panel-heading">
-          <div>
-            <h3>Key Driver Charts</h3>
-            <p>Relative feature importance · illustrative baseline values</p>
-          </div>
+          <div><h3>Key Driver Charts</h3><p>Relative feature importance · illustrative baseline values</p></div>
           <span className="soft-tag">TOP DRIVERS</span>
         </div>
         <div className="drivers">
@@ -85,12 +76,10 @@ function Overview({ setPage }) {
         </div>
         <p className="fine-print">Illustrative values only. Replace with validated model explainability output before presenting as actual results.</p>
       </section>
-
       <section className="section-links" aria-label="Dashboard sections">
         {sections.filter((section) => section.id !== 'overview').map(({ id, label, icon: Icon }) => (
           <button className="section-link" key={id} onClick={() => setPage(id)}>
-            <span className="section-link-icon"><Icon size={18} /></span>
-            <span>{label}</span>
+            <span className="section-link-icon"><Icon size={18} /></span><span>{label}</span>
           </button>
         ))}
       </section>
@@ -99,34 +88,18 @@ function Overview({ setPage }) {
 }
 
 const sectionDetails = {
-  predictions: {
-    eyebrow: 'PREDICTIVE ANALYTICS',
-    title: 'Real-time predictions',
-  },
-  segments: {
-    eyebrow: 'CUSTOMER ANALYTICS',
-    title: 'Cluster segmentations',
-  },
-  genai: {
-    eyebrow: 'GENERATIVE INTELLIGENCE',
-    title: 'GenAI strategic explanations',
-  },
+  predictions: ['PREDICTIVE ANALYTICS', 'Real-time predictions'],
+  segments: ['CUSTOMER ANALYTICS', 'Cluster segmentations'],
+  genai: ['GENERATIVE INTELLIGENCE', 'GenAI strategic explanations'],
 };
 
 function SectionPage({ page }) {
-  const section = sectionDetails[page];
-  return (
-    <div className="page-heading">
-      <div>
-        <div className="eyebrow"><i /> {section.eyebrow}</div>
-        <h1>{section.title}</h1>
-      </div>
-    </div>
-  );
+  const [eyebrow, title] = sectionDetails[page];
+  return <div className="page-heading"><div><div className="eyebrow"><i /> {eyebrow}</div><h1>{title}</h1></div></div>;
 }
 
 export default function App() {
-  const [page, setPage] = React.useState('overview');
+  const [page, setPage] = useState('overview');
   return (
     <div className="app">
       <Sidebar page={page} setPage={setPage} />

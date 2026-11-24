@@ -2099,7 +2099,7 @@ footer i {
     min-width: 0;
     flex-direction: column;
     gap: 8px;
-    border: 1px solid #e8ebf2;
+    border: 0;
     border-radius: 9px;
     background: #fff;
     padding: 9px 11px 7px
@@ -2421,4 +2421,47 @@ footer i {
 .customer-field input.range-placeholder::placeholder {
     color: #b8bfcb;
     opacity: 1;
+}
+
+
+/* Match range slider styling across churn prediction and customer segments. */
+.customer-slider {
+    box-shadow: none;
+}
+
+.customer-slider input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 4px;
+    border: 0;
+    border-radius: 999px;
+    background: #e8eaf1;
+    outline: none;
+}
+
+.customer-slider input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 50%;
+    background: #7167f8;
+    box-shadow: none;
+}
+
+.customer-slider input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 50%;
+    background: #7167f8;
+    box-shadow: none;
+}
+
+.customer-slider input[type="range"]::-moz-range-track {
+    height: 4px;
+    border: 0;
+    border-radius: 999px;
+    background: #e8eaf1;
 }

@@ -5,6 +5,20 @@ import { clusteringResults, customerFields as fields, segments as fallbackSegmen
 import { PageHeading, Notice } from "../components/Layout";
 
 const clusterColors = ["#756BF6", "#39B7A4", "#F0B75E"];
+const formatReason = (reason) => {
+  if (typeof reason === "string" || typeof reason === "number") return String(reason);
+  if (reason == null) return "";
+  if (Array.isArray(reason)) return reason.map(formatReason).filter(Boolean).join(" · ");
+  if (typeof reason === "object") {
+    const preferred = reason.message || reason.reason || reason.description || reason.text;
+    if (preferred) return formatReason(preferred);
+    return Object.entries(reason)
+      .map(([key, value]) => `${key.replaceAll("_", " ")}: ${typeof value === "object" ? JSON.stringify(value) : value}`)
+      .join(" · ");
+  }
+  return String(reason);
+};
+
 const clusterDescriptions = {
   "High-Volume Buyers": "Customers who purchase frequently and spend the most. Retain their value with loyalty rewards and recognition.",
   "Low-Engagement Customers": "Customers with fewer visits, lower email interaction, and the highest observed churn. Prioritize re-engagement campaigns.",
@@ -217,7 +231,7 @@ export default function CustomerSegments({ apiUrl }) {
               </div>
               <div className="cluster-result-reasons">
                 <b>Why this customer belongs to this cluster</b>
-                {result.reason.map((reason) => <p key={reason}><i />{reason}</p>)}
+                {(Array.isArray(result.reason) ? result.reason : result.reason ? [result.reason] : []).map((reason, index) => <p key={index}><i />{formatReason(reason)}</p>)}
               </div>
               <small className="cluster-result-note">{result.note}</small>
             </div>

@@ -1,5 +1,37 @@
-export const kpis=[{label:'Total customers',value:'100,000',change:'+8.2%',note:'vs. previous period',tone:'violet'},{label:'Customers at risk',value:'46,200',change:'46.2%',note:'sample churn rate',tone:'rose'},{label:'Model confidence',value:'94.6%',change:'LR baseline',note:'accuracy · offline evaluation',tone:'mint'},{label:'Customer segments',value:'3',change:'K-Means',note:'exploratory groups',tone:'amber'}];
-export const trend=[{month:'Jan',risk:32},{month:'Feb',risk:35},{month:'Mar',risk:30},{month:'Apr',risk:38},{month:'May',risk:34},{month:'Jun',risk:41},{month:'Jul',risk:37},{month:'Aug',risk:44},{month:'Sep',risk:39},{month:'Oct',risk:46},{month:'Nov',risk:42},{month:'Dec',risk:46}];
-export const segments=[{name:'Segment 01',customers:38200,share:38.2,color:'#756BF6',desc:'Largest group'},{name:'Segment 02',customers:34100,share:34.1,color:'#39B7A4',desc:'Growth opportunity'},{name:'Segment 03',customers:27700,share:27.7,color:'#F0B75E',desc:'Needs exploration'}];
-export const drivers=[{name:'Contract type',score:86,color:'#756BF6'},{name:'Tenure',score:72,color:'#8E86FA'},{name:'Monthly charges',score:61,color:'#B0AAF9'},{name:'Support activity',score:48,color:'#C5C1F7'},{name:'Payment method',score:34,color:'#D9D7F8'}];
-export const customers=[{id:'CUS-10482',name:'Olivia Chen',plan:'Premium',tenure:'4 months',monthly:'SAR 289',risk:94,status:'High'},{id:'CUS-10831',name:'Noah Williams',plan:'Standard',tenure:'8 months',monthly:'SAR 179',risk:87,status:'High'},{id:'CUS-11209',name:'Amelia Patel',plan:'Premium',tenure:'13 months',monthly:'SAR 319',risk:72,status:'Medium'},{id:'CUS-11763',name:'Liam Johnson',plan:'Basic',tenure:'26 months',monthly:'SAR 99',risk:68,status:'Medium'}];
+export const kpis = [
+  { label: 'Total customers', value: '100,000', note: 'synthetic project dataset' },
+  { label: 'Customers at risk', value: '46,200', note: '46.2% observed churn rate' },
+  { label: 'Model accuracy', value: '94.59%', note: 'Logistic Regression · offline test' },
+  { label: 'Customer segments', value: '3', note: 'K-Means exploratory groups' },
+];
+
+export const drivers = [
+  { name: 'Contract type', score: 86, color: '#756BF6' },
+  { name: 'Tenure', score: 72, color: '#8E86FA' },
+  { name: 'Monthly charges', score: 61, color: '#B0AAF9' },
+  { name: 'Support activity', score: 48, color: '#C5C1F7' },
+  { name: 'Payment method', score: 34, color: '#D9D7F8' },
+];
+
+export const segments = [
+  { name: 'Segment 01', customers: 38200, share: 38.2, color: '#756BF6', desc: 'Largest group' },
+  { name: 'Segment 02', customers: 34100, share: 34.1, color: '#39B7A4', desc: 'Growth opportunity' },
+  { name: 'Segment 03', customers: 27700, share: 27.7, color: '#F0B75E', desc: 'Needs exploration' },
+];
+
+export const modelResults = [
+  { name: 'Logistic Regression · Baseline', accuracy: '94.59%', precision: '94.19%', recall: '94.10%', f1: '94.15%', auc: '99.04%' },
+  { name: 'Random Forest · Baseline', accuracy: '94.21%', precision: '93.89%', recall: '93.55%', f1: '93.72%', auc: '98.80%' },
+  { name: 'Logistic Regression · Tuned', accuracy: '94.55%', precision: '94.18%', recall: '94.01%', f1: '94.09%', auc: '99.04%' },
+  { name: 'Random Forest · Tuned', accuracy: '94.24%', precision: '93.87%', recall: '93.65%', f1: '93.76%', auc: '98.82%' },
+];
+
+export const clusteringResults = [
+  { name: 'K-Means', clusters: '3', silhouette: '0.099', daviesBouldin: '2.448' },
+  { name: 'Gaussian Mixture Model', clusters: '4', silhouette: '0.008', daviesBouldin: '18.561' },
+];
+
+export const genaiMethods = [
+  { name: 'Zero-shot', title: 'Direct instruction prompting', description: 'Ask the model to explain supplied customer-risk information and produce a structured executive summary without showing examples.', inputs: ['Customer attributes and context', 'Churn probability from the predictive model', 'Observed churn-risk indicators'] },
+  { name: 'Few-shot', title: 'Example-guided prompting', description: 'Provide representative input/output examples before asking the model to explain a new customer-risk case in the same structured style.', inputs: ['Customer attributes and context', 'Churn probability from the predictive model', 'Observed churn-risk indicators', 'A small set of demonstration examples'] },
+];

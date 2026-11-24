@@ -15,9 +15,9 @@ from pydantic import BaseModel, Field, ConfigDict
 ROOT=Path(__file__).resolve().parent
 load_dotenv(ROOT/".env")
 ARTIFACTS=ROOT/"artifacts"; ARTIFACTS.mkdir(exist_ok=True)
-MODEL_PATH=ARTIFACTS/"churn_pipeline.joblib"
+MODEL_PATH=ARTIFACTS/"churn_pipeline_v2.joblib"
 TRAIN_URL=os.getenv("TRAIN_DATA_URL","https://raw.githubusercontent.com/jooryA/SWE485-Project-Group6/Interactive-UI/Dataset/Processed/train_selected.csv")
-MODEL_VERSION="baseline-logistic-regression-retrained-from-team-data"
+MODEL_VERSION="baseline-logistic-regression-retrained-from-team-data-v2"
 app=FastAPI(title="CCO Retail Intelligence and Customer Retention Advisory System API",version="1.0.0")
 app.add_middleware(CORSMiddleware,allow_origins=os.getenv("CORS_ORIGINS","http://localhost:5173,http://127.0.0.1:5173").split(","),allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
 
@@ -57,9 +57,13 @@ def train_model():
  from sklearn.linear_model import LogisticRegression
  frame=pd.read_csv(TRAIN_URL)
  if "churn_flag" not in frame or any(f not in frame for f in FEATURES): raise RuntimeError("Training CSV schema does not match the team's 15-feature schema.")
- X=frame[FEATURES]; y=frame["churn_flag"].astype(int)
- cat=X.select_dtypes(include=["object","category","bool","str"]).columns.tolist()
- num=X.select_dtypes(include=["number"]).columns.tolist()
+ X=frame[FEATURES].copy(); y=frame["churn_flag"].astype(int)
+
+ # Keep categorical columns as NumPy-compatible object dtype. Pandas StringDtype
+ # can trigger "string dtypes are not allowed" in some scikit-learn versions.
+ cat=["age_group","gender","region","customer_segment","preferred_channel"]
+ X[cat]=X[cat].astype(object)
+ num=[feature for feature in FEATURES if feature not in cat]
  prep=ColumnTransformer([("categorical",OneHotEncoder(handle_unknown="ignore"),cat),("numerical",StandardScaler(),num)],remainder="drop")
  pipe=Pipeline([("preprocessing",prep),("model",LogisticRegression(max_iter=1000))])
  pipe.fit(X,y); joblib.dump(pipe,MODEL_PATH); return pipe
@@ -139,7 +143,14 @@ def health():
 @app.post("/api/predict/churn")
 def predict_churn(payload:CustomerInput):
  try:
-  model=get_model(); row=pd.DataFrame([payload.model_dump()],columns=FEATURES); probability=float(model.predict_proba(row)[0][1]); pred=int(probability>=0.5)
+  model=get_model()
+  row=pd.DataFrame([payload.model_dump()],columns=FEATURES)
+
+  # Match the categorical dtypes used when the model pipeline was trained.
+  categorical_features=["age_group","gender","region","customer_segment","preferred_channel"]
+  row[categorical_features]=row[categorical_features].astype(object)
+
+  probability=float(model.predict_proba(row)[0][1]); pred=int(probability>=0.5)
   return {"status":"ok","model":MODEL_VERSION,"churn_prediction":pred,"churn_label":"Churn" if pred else "Retained","churn_probability":round(probability,6),"risk_level":"High" if probability>=0.7 else "Moderate" if probability>=0.4 else "Low","threshold":0.5,"note":"Live estimate from a Logistic Regression pipeline retrained on the team's train_selected.csv with the documented One-Hot Encoding and StandardScaler preprocessing."}
  except Exception as exc: raise HTTPException(status_code=503,detail=f"Prediction model unavailable: {exc}")
 

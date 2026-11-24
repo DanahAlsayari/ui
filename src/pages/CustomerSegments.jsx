@@ -14,11 +14,11 @@ const fields = [
   { name: "total_spent", label: "Total spent", min: 17.87, max: 28444.24, step: 0.01 },
   { name: "recency_days", label: "Recency (days)", min: 1, max: 364, step: 1 },
   { name: "website_visits", label: "Website visits", min: 2, max: 479, step: 1 },
+  { name: "loyalty_score", label: "Loyalty score", min: 10, max: 99, step: 1 },
+  { name: "engagement_score", label: "Engagement score", min: 10, max: 92, step: 0.5 },
   { name: "discount_usage_rate", label: "Discount usage rate (0–1)", min: 0.05, max: 0.8, step: 0.01 },
   { name: "email_open_rate", label: "Email open rate (0–1)", min: 0.05, max: 0.9, step: 0.01 },
   { name: "cart_abandonment_rate", label: "Cart abandonment rate (0–1)", min: 0.05, max: 0.85, step: 0.01 },
-  { name: "loyalty_score", label: "Loyalty score", min: 10, max: 99, step: 1 },
-  { name: "engagement_score", label: "Engagement score", min: 10, max: 92, step: 0.5 },
 ];
 
 const clusterColors = ["#756BF6", "#39B7A4", "#F0B75E"];

@@ -151,7 +151,7 @@ def predict_churn(payload:CustomerInput):
   row[categorical_features]=row[categorical_features].astype(object)
 
   probability=float(model.predict_proba(row)[0][1]); pred=int(probability>=0.5)
-  return {"status":"ok","model":MODEL_VERSION,"churn_prediction":pred,"churn_label":"Churn" if pred else "Retained","churn_probability":round(probability,6),"risk_level":"High" if probability>=0.7 else "Moderate" if probability>=0.4 else "Low","threshold":0.5,"note":"Live estimate from a Logistic Regression pipeline retrained on the team's train_selected.csv with the documented One-Hot Encoding and StandardScaler preprocessing."}
+  return {"status":"ok","model":MODEL_VERSION,"churn_prediction":pred,"churn_label":"Churn" if pred else "Retained","churn_probability":round(probability,6),"risk_level":"High" if probability>=0.7 else "Moderate" if probability>=0.4 else "Low","threshold":0.5}
  except Exception as exc: raise HTTPException(status_code=503,detail=f"Prediction model unavailable: {exc}")
 
 # Segment endpoint: returns descriptive project profiles, not live assignments.

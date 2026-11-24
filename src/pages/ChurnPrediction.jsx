@@ -67,25 +67,17 @@ export default function ChurnPrediction({ apiUrl }) {
       <PageHeading
         eyebrow="SUPERVISED LEARNING"
         title="Customer churn prediction"
-        subtitle="Enter the 15 customer features used by the team's selected Logistic Regression baseline."
       />
 
-      <Notice>
-        <b>Model note:</b> The API retrains the selected baseline from the team's
-        original train_selected.csv using the documented One-Hot Encoding and
-        StandardScaler preprocessing. The first prediction may take longer while
-        the data downloads and model trains.
-      </Notice>
+
 
       <form className="panel customer-form" onSubmit={handleSubmit}>
         <div className="panel-heading">
           <div>
             <h3>Customer profile</h3>
-            <p>Enter the 15 feature values for the customer you want to assess.</p>
+            <p>Enter the customer’s feature values to predict their churn risk.</p>
           </div>
-          <button type="button" className="reset-button" onClick={resetForm}>
-            <RotateCcw size={14} />Reset
-          </button>
+        
         </div>
 
         {/* The field definitions live in data.js to keep this page easy to scan. */}
@@ -126,7 +118,7 @@ export default function ChurnPrediction({ apiUrl }) {
 
         <button className="primary-button full-button" type="submit" disabled={loading}>
           {loading ? <RefreshCw className="spin" size={15} /> : <Activity size={15} />}
-          {loading ? "Training / predicting…" : "Predict churn risk"}
+          {loading ? "Predicting…" : "Predict churn risk"}
         </button>
 
         {error && (

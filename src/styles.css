@@ -2415,3 +2415,10 @@ footer i {
         width: 100%
     }
 }
+
+
+/* Keep range hints visually lighter than entered field values. */
+.customer-field input.range-placeholder::placeholder {
+    color: #b8bfcb;
+    opacity: 1;
+}

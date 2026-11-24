@@ -55,3 +55,9 @@
   background-repeat: no-repeat;
   background-position: right 14px center;
 }
+
+
+/* Highlight the Logistic Regression baseline selected for churn prediction. */
+.selected-model-row td { background: #f0efff; color: #5148c8; font-weight: 700; }
+.selected-model-row td:first-child { border-left: 3px solid #7167f8; padding-left: 9px; }
+.selected-model-row td b { color: #5148c8; }

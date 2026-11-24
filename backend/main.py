@@ -1,17 +1,127 @@
-"""FastAPI boundary. Connect validated project artifacts after verifying schemas."""
-from fastapi import FastAPI
+"""CCO Retail Intelligence API: team-data Logistic Regression + Gemini reports."""
+import os
+from functools import lru_cache
+from pathlib import Path
+import joblib
+import pandas as pd
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-app=FastAPI(title="Northstar Customer Intelligence API",version="1.0.0")
-app.add_middleware(CORSMiddleware,allow_origins=["http://localhost:5173"],allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
-class ScenarioInput(BaseModel):
-    tenure_months:int=Field(ge=0,le=120)
-    monthly_charges:float=Field(ge=0)
-    support_tickets:int=Field(ge=0)
+from pydantic import BaseModel, Field, ConfigDict
+ROOT=Path(__file__).resolve().parent
+ARTIFACTS=ROOT/"artifacts"; ARTIFACTS.mkdir(exist_ok=True)
+MODEL_PATH=ARTIFACTS/"churn_pipeline.joblib"
+TRAIN_URL=os.getenv("TRAIN_DATA_URL","https://raw.githubusercontent.com/jooryA/SWE485-Project-Group6/Interactive-UI/Dataset/Processed/train_selected.csv")
+MODEL_VERSION="baseline-logistic-regression-retrained-from-team-data"
+app=FastAPI(title="CCO Retail Intelligence and Customer Retention Advisory System API",version="1.0.0")
+app.add_middleware(CORSMiddleware,allow_origins=os.getenv("CORS_ORIGINS","http://localhost:5173,http://127.0.0.1:5173").split(","),allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
+class CustomerInput(BaseModel):
+ model_config=ConfigDict(extra="forbid")
+ age_group:str=Field(pattern=r"^(18-24|25-34|35-44|45-54|55\+)$")
+ gender:str=Field(pattern=r"^(Female|Male|Other)$")
+ region:str=Field(pattern=r"^(Central|East|North|South|West)$")
+ customer_segment:str=Field(pattern=r"^(New|Returning|VIP|Loyal)$")
+ preferred_channel:str=Field(pattern=r"^(In-Store|Mobile App|Online)$")
+ purchase_frequency:int=Field(ge=0,le=1000)
+ avg_order_value:float=Field(ge=0,le=100000)
+ total_spent:float=Field(ge=0,le=10000000)
+ recency_days:int=Field(ge=0,le=10000)
+ website_visits:int=Field(ge=0,le=100000)
+ discount_usage_rate:float=Field(ge=0,le=1)
+ email_open_rate:float=Field(ge=0,le=1)
+ cart_abandonment_rate:float=Field(ge=0,le=1)
+ loyalty_score:float=Field(ge=0,le=100)
+ engagement_score:float=Field(ge=0,le=100)
+FEATURES=["age_group","gender","region","customer_segment","preferred_channel","purchase_frequency","avg_order_value","total_spent","recency_days","website_visits","discount_usage_rate","email_open_rate","cart_abandonment_rate","loyalty_score","engagement_score"]
+def train_model():
+ from sklearn.compose import ColumnTransformer
+ from sklearn.preprocessing import OneHotEncoder,StandardScaler
+ from sklearn.pipeline import Pipeline
+ from sklearn.linear_model import LogisticRegression
+ frame=pd.read_csv(TRAIN_URL)
+ if "churn_flag" not in frame or any(f not in frame for f in FEATURES): raise RuntimeError("Training CSV schema does not match the team's 15-feature schema.")
+ X=frame[FEATURES]; y=frame["churn_flag"].astype(int)
+ cat=X.select_dtypes(include=["object","category","bool","str"]).columns.tolist()
+ num=X.select_dtypes(include=["number"]).columns.tolist()
+ prep=ColumnTransformer([("categorical",OneHotEncoder(handle_unknown="ignore"),cat),("numerical",StandardScaler(),num)],remainder="drop")
+ pipe=Pipeline([("preprocessing",prep),("model",LogisticRegression(max_iter=1000))])
+ pipe.fit(X,y); joblib.dump(pipe,MODEL_PATH); return pipe
+@lru_cache(maxsize=1)
+def get_model():
+ if MODEL_PATH.exists():
+  try:return joblib.load(MODEL_PATH)
+  except Exception:MODEL_PATH.unlink(missing_ok=True)
+ return train_model()
+SEGMENTS=[
+ {"name":"High-Volume Buyers","customers":37796,"share":37.796,"churned":16637,"churn_rate":44.02,"priority":"Loyalty protection","description":"Buy frequently and spend the most. The project interpretation recommends protecting this group with loyalty rewards.","profile":{"purchase_frequency":24.36,"avg_order_value":234.65,"total_spent":5527.68,"website_visits":122.97,"email_open_rate":0.47,"cart_abandonment_rate":0.46,"engagement_score":50.61}},
+ {"name":"Low-Engagement Customers","customers":31485,"share":31.485,"churned":17036,"churn_rate":54.11,"priority":"Re-engagement first","description":"Have fewer website visits, lower email opens, and higher cart abandonment. This group has the highest observed churn rate.","profile":{"purchase_frequency":3.98,"avg_order_value":192.88,"total_spent":688.48,"website_visits":18.38,"email_open_rate":0.31,"cart_abandonment_rate":0.57,"engagement_score":36.78}},
+ {"name":"Engaged Light Buyers","customers":30719,"share":30.719,"churned":12551,"churn_rate":40.86,"priority":"Grow purchase value","description":"Purchase less often but show higher email engagement. The project interpretation suggests relevant recommendations to raise order size.","profile":{"purchase_frequency":4.38,"avg_order_value":196.26,"total_spent":774.38,"website_visits":20.37,"email_open_rate":0.65,"cart_abandonment_rate":0.32,"engagement_score":66.63}}
+]
+ZERO_SHOT="""You are a customer retention analyst preparing a concise report for business executives.
+Task: Analyze the customer's churn prediction and available customer features. Provide practical retention recommendations.
+Customer Information:
+- Churn Prediction: {churn_prediction}
+- Churn Probability: {churn_probability}
+- Recency Days: {recency_days}
+- Loyalty Score: {loyalty_score}
+- Cart Abandonment Rate: {cart_abandonment_rate}
+Instructions: Summarize estimated churn risk; identify relevant observations; recommend exactly two actionable, tailored retention strategies and briefly explain their rationale; use clear executive-friendly English.
+Constraints: Use only supplied information. Do not invent facts or claim causation. Treat probability as a model estimate, not certainty. Avoid guarantees. Acknowledge limitations. Do not add sections.
+Required format:
+Risk Summary:
+[Concise summary]
+Retention Recommendations:
+1. [Action and rationale]
+2. [Action and rationale]
+Strategic Rationale:
+[Why actions are relevant]"""
+FEW_SHOT="""You are a customer retention analyst. Follow the examples' structure and tone. Use only the new customer's supplied values.
+Example 1: Churn Prediction 1; Probability 82%; Recency 50 days; Loyalty 20; Cart Abandonment 75%.
+Risk Summary: The model estimates an 82% churn probability, indicating elevated predicted risk. The available data show 50 recency days, loyalty 20, and cart abandonment 75%.
+Retention Recommendations:
+1. Send a personalized re-engagement message with a relevant return offer, given the 50 recency days.
+2. Offer checkout assistance or a reminder, considering the 75% cart abandonment.
+Strategic Rationale: These actions address observed inactivity and cart abandonment. They are suggestions, not guaranteed solutions.
+Example 2: Churn Prediction 0; Probability 18%; Recency 5 days; Loyalty 85; Cart Abandonment 10%.
+Risk Summary: The model estimates an 18% churn probability, indicating relatively low predicted risk.
+Retention Recommendations:
+1. Maintain light-touch loyalty communication.
+2. Offer an appreciation message or optional loyalty benefit.
+Strategic Rationale: Maintain engagement rather than intensive recovery efforts.
+Now analyze this customer:
+- Churn Prediction: {churn_prediction}
+- Churn Probability: {churn_probability}
+- Recency Days: {recency_days}
+- Loyalty Score: {loyalty_score}
+- Cart Abandonment Rate: {cart_abandonment_rate}
+Use the exact sections Risk Summary, Retention Recommendations (exactly two), and Strategic Rationale. Be concise, factual, and executive-friendly. Do not invent facts, infer causation, or guarantee outcomes."""
+class InsightRequest(BaseModel):
+ customer:CustomerInput
+ method:str=Field(pattern="^(Zero-shot|Few-shot)$")
+ churn_probability:float=Field(ge=0,le=1)
+ churn_prediction:int=Field(ge=0,le=1)
 @app.get("/api/health")
-def health(): return {"status":"ok","mode":"prototype","models_connected":False}
+def health():
+ return {"status":"ok","service":"CCO Retail Intelligence API","model_artifact_exists":MODEL_PATH.exists(),"model_version":MODEL_VERSION,"genai_configured":bool(os.getenv("GEMINI_API_KEY"))}
 @app.post("/api/predict/churn")
-def predict_churn(payload:ScenarioInput):
-    return {"status":"not_configured","message":"Connect the validated trained model and preprocessing pipeline before enabling inference.","input_received":payload.model_dump()}
-@app.get("/api/insights")
-def insights(): return {"status":"not_configured","message":"Connect the selected GenAI prompt and secured provider API before enabling live insights."}
+def predict_churn(payload:CustomerInput):
+ try:
+  model=get_model(); row=pd.DataFrame([payload.model_dump()],columns=FEATURES); probability=float(model.predict_proba(row)[0][1]); pred=int(probability>=0.5)
+  return {"status":"ok","model":MODEL_VERSION,"churn_prediction":pred,"churn_label":"Churn" if pred else "Retained","churn_probability":round(probability,6),"risk_level":"High" if probability>=0.7 else "Moderate" if probability>=0.4 else "Low","threshold":0.5,"note":"Live estimate from a Logistic Regression pipeline retrained on the team's train_selected.csv with the documented One-Hot Encoding and StandardScaler preprocessing."}
+ except Exception as exc: raise HTTPException(status_code=503,detail=f"Prediction model unavailable: {exc}")
+@app.get("/api/segments")
+def segments():
+ return {"status":"ok","algorithm":"K-Means (k=3)","silhouette":0.099,"davies_bouldin":2.448,"overall_churn_rate":46.22,"segments":SEGMENTS,"warning":"The project reports weak cluster separation. Treat these as exploratory descriptive groups, not definitive personas or new-customer assignments."}
+@app.post("/api/insights")
+def insights(payload:InsightRequest):
+ key=os.getenv("GEMINI_API_KEY")
+ if not key: raise HTTPException(status_code=503,detail="GEMINI_API_KEY is not configured. Add it to backend/.env; never expose it in the frontend.")
+ try:
+  from google import genai
+  c=payload.customer
+  values={"churn_prediction":payload.churn_prediction,"churn_probability":f"{payload.churn_probability*100:.1f}%","recency_days":c.recency_days,"loyalty_score":c.loyalty_score,"cart_abandonment_rate":f"{c.cart_abandonment_rate*100:.1f}%"}
+  prompt=(ZERO_SHOT if payload.method=="Zero-shot" else FEW_SHOT).format(**values)
+  model_name=os.getenv("GEMINI_MODEL","gemini-2.5-flash")
+  response=genai.Client(api_key=key).models.generate_content(model=model_name,contents=prompt)
+  if not response.text: raise RuntimeError("Gemini returned an empty response.")
+  return {"status":"ok","provider":"Gemini","model":model_name,"method":payload.method,"report":response.text}
+ except Exception as exc: raise HTTPException(status_code=502,detail=f"GenAI generation failed: {exc}")

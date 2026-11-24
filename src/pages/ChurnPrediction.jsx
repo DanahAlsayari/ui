@@ -33,7 +33,7 @@ export default function ChurnPrediction({ apiUrl }) {
     }
 
     try {
-      const response = await fetch(`${apiUrl}/api/predict/churn`,
+      const response = await fetch(`${apiUrl}/api/predict/churn`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(

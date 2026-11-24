@@ -1,4 +1,4 @@
-import { Activity, ArrowUpRight, LayoutDashboard, ShieldCheck, Users } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { drivers, kpis } from "../data";
 import { PageHeading, sections, StatCards } from "../components/Layout";
 

@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Activity, AlertTriangle, RefreshCw, RotateCcw } from "lucide-react";
-import { customerFields, initialCustomer, modelResults } from "../data";
+import { customerFields, modelResults } from "../data";
 import { PageHeading, Notice } from "../components/Layout";
 
 // Form page for submitting the 15 customer features to the churn prediction API.
 export default function ChurnPrediction({ apiUrl }) {
-  const [customer, setCustomer] = useState(initialCustomer);
+  // Start with an empty form so every prediction is based on user-entered values.
+  const emptyCustomer = Object.fromEntries(customerFields.map((field) => [field.name, ""]));
+  const [customer, setCustomer] = useState(emptyCustomer);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,16 @@ export default function ChurnPrediction({ apiUrl }) {
       const response = await fetch(`${apiUrl}/api/predict/churn`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(customer),
+        body: JSON.stringify(
+          Object.fromEntries(
+            Object.entries(customer).map(([key, value]) => [
+              key,
+              value === "" ? value : customerFields.find((field) => field.name === key)?.options
+                ? value
+                : Number(value),
+            ])
+          )
+        ),
       });
       const data = await response.json();
 
@@ -46,7 +57,7 @@ export default function ChurnPrediction({ apiUrl }) {
 
   // Restore the example profile so the user can start a fresh prediction.
   function resetForm() {
-    setCustomer(initialCustomer);
+    setCustomer(emptyCustomer);
     setResult(null);
     setError("");
   }
@@ -70,7 +81,7 @@ export default function ChurnPrediction({ apiUrl }) {
         <div className="panel-heading">
           <div>
             <h3>Customer profile</h3>
-            <p>All 15 training features. customer_id and churn_risk are excluded.</p>
+            <p>Enter the 15 feature values for the customer you want to assess.</p>
           </div>
           <button type="button" className="reset-button" onClick={resetForm}>
             <RotateCcw size={14} />Reset
@@ -87,8 +98,9 @@ export default function ChurnPrediction({ apiUrl }) {
                   value={customer[field.name]}
                   onChange={(event) => updateCustomer(field.name, event.target.value)}
                 >
+                  <option value="">Select {field.label.toLowerCase()}</option>
                   {field.options.map((option) => (
-                    <option key={option}>{option}</option>
+                    <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
               ) : (
@@ -99,8 +111,12 @@ export default function ChurnPrediction({ apiUrl }) {
                   max={field.max}
                   step={field.step}
                   value={customer[field.name]}
+                  placeholder="Enter value"
                   onChange={(event) =>
-                    updateCustomer(field.name, Number(event.target.value))
+                    updateCustomer(
+                      field.name,
+                      event.target.value === "" ? "" : Number(event.target.value)
+                    )
                   }
                 />
               )}

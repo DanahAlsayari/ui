@@ -202,7 +202,8 @@ export default function CustomerSegments({ apiUrl }) {
                       step={field.step}
                       required
                       value={formData[field.name]}
-                      placeholder={`${Number(field.min).toLocaleString("en-US")} – ${Number(field.max).toLocaleString("en-US")}`}
+                      placeholder={`Range: ${Number(field.min).toLocaleString("en-US")} – ${Number(field.max).toLocaleString("en-US")}`}
+                      className="range-placeholder"
                       onChange={(event) => updateField(field.name, event.target.value, "number")}
                     />
                   )}

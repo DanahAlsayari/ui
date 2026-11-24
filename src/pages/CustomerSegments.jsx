@@ -174,6 +174,26 @@ export default function CustomerSegments({ apiUrl }) {
                     >
                       {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
+                  ) : ["discount_usage_rate", "email_open_rate", "cart_abandonment_rate"].includes(field.name) ? (
+                    <div className="customer-slider">
+                      <div className="customer-slider-heading">
+                        <span>Value</span>
+                        <strong>{Number(formData[field.name]).toFixed(2)}</strong>
+                      </div>
+                      <input
+                        type="range"
+                        min={field.min}
+                        max={field.max}
+                        step={field.step}
+                        value={formData[field.name]}
+                        aria-label={field.label}
+                        onChange={(event) => updateField(field.name, event.target.value, "number")}
+                      />
+                      <div className="customer-slider-limits">
+                        <span>{field.min}</span>
+                        <span>{field.max}</span>
+                      </div>
+                    </div>
                   ) : (
                     <input
                       type="number"
@@ -182,12 +202,9 @@ export default function CustomerSegments({ apiUrl }) {
                       step={field.step}
                       required
                       value={formData[field.name]}
-                      placeholder={`${field.min} – ${field.max}`}
+                      placeholder={`${Number(field.min).toLocaleString("en-US")} – ${Number(field.max).toLocaleString("en-US")}`}
                       onChange={(event) => updateField(field.name, event.target.value, "number")}
                     />
-                  )}
-                  {field.type !== "select" && (
-                    <small className="cluster-field-range">Range: {field.min} – {field.max}</small>
                   )}
                 </label>
               ))}

@@ -1,19 +1,141 @@
-import {useState} from 'react';
-import {LayoutDashboard,ShieldAlert,Users,Sparkles,Bell,Search,Download,ChevronDown,ChevronRight,ArrowUpRight,ArrowDownRight,Activity,Target,Menu,X,Command,Zap,Settings2,MessageSquareText,BrainCircuit,SlidersHorizontal} from 'lucide-react';
-import {AreaChart,Area,CartesianGrid,XAxis,YAxis,Tooltip,ResponsiveContainer,PieChart,Pie,Cell,BarChart,Bar} from 'recharts';
-import {kpis,trend,segments,drivers,customers} from './data';
+import { LayoutDashboard, Activity, Users, Sparkles, Command } from 'lucide-react';
+import { kpis, drivers } from './data';
 
-const nav=[['overview','Overview',LayoutDashboard],['churn','Churn predictions',ShieldAlert],['segments','Customer segments',Users],['insights','GenAI insights',Sparkles]];
-const titles={overview:['Good morning, team','Here’s what’s happening across your customer portfolio.'],churn:['Churn intelligence','Explore risk signals and test retention scenarios.'],segments:['Know your segments','Explore customer groups and the patterns behind them.'],insights:['From signals to strategy','Executive-ready explanations, grounded in customer intelligence.']};
-function Brand(){return <div className="brand"><div className="brand-mark"><Command size={19}/></div><div><div className="brand-name">northstar<span>.</span></div><div className="brand-caption">CUSTOMER INTELLIGENCE</div></div></div>}
-function Sidebar({page,setPage,open,setOpen}){return <><div className={'mobile-scrim '+(open?'show':'')} onClick={()=>setOpen(false)}/><aside className={'sidebar '+(open?'sidebar-open':'')}><div className="sidebar-head"><Brand/><button className="icon-button mobile-only" onClick={()=>setOpen(false)}><X size={18}/></button></div><div className="workspace-switch"><div className="workspace-avatar">A</div><div className="workspace-copy"><b>Acme Analytics</b><small>Executive workspace</small></div><ChevronDown size={15}/></div><div className="nav-label">WORKSPACE</div>{nav.slice(0,3).map(([id,label,Icon])=><button key={id} className={'nav-item '+(page===id?'nav-active':'')} onClick={()=>{setPage(id);setOpen(false)}}><Icon size={18}/>{label}{id==='churn'&&<span className="nav-live">Preview</span>}</button>)}<div className="nav-label nav-label-gap">INTELLIGENCE</div><button className={'nav-item '+(page==='insights'?'nav-active':'')} onClick={()=>{setPage('insights');setOpen(false)}}><Sparkles size={18}/>GenAI insights</button><div className="sidebar-bottom"><div className="upgrade-card"><div className="upgrade-icon"><Zap size={16}/></div><b>See the bigger picture.</b><p>Turn customer signals into confident decisions.</p><button onClick={()=>setPage('insights')}>Explore insights <ChevronRight size={14}/></button></div><button className="nav-item settings-item"><Settings2 size={18}/>Settings</button><div className="profile"><div className="avatar">DA</div><div><b>Dana A.</b><small>Workspace admin</small></div><ChevronDown size={14}/></div></div></aside></>}
-function Header({setOpen}){return <header className="topbar"><button className="icon-button mobile-only" onClick={()=>setOpen(true)}><Menu size={19}/></button><div className="breadcrumbs">Workspace <ChevronRight size={13}/> <b>Analytics</b></div><div className="header-actions"><div className="searchbox"><Search size={14}/>Search anything...<kbd>⌘ K</kbd></div><button className="icon-button bell"><Bell size={18}/><i/></button><div className="avatar">DA</div></div></header>}
-function Heading({page}){return <div className="page-heading"><div><div className="eyebrow"><i/>{page==='overview'?'EXECUTIVE OVERVIEW':page==='churn'?'PREDICTIVE ANALYTICS':page==='segments'?'CUSTOMER ANALYTICS':'GENERATIVE INTELLIGENCE'}</div><h1>{titles[page][0]}</h1><p>{titles[page][1]}</p></div><div className="heading-actions"><button className="secondary-button"><Download size={15}/> Export</button><button className="primary-button" onClick={()=>window.alert('Connect verified project data to enable live refresh.')}><Activity size={15}/> Refresh data</button></div></div>}
-function Panel({title,subtitle,children,action}){return <section className="panel"><div className="panel-heading"><div><h3>{title}</h3><p>{subtitle}</p></div>{action}</div>{children}</section>}
-function Stats(){return <div className="stats-grid">{kpis.map((k,i)=><div className="stat-card" key={k.label}><div className="stat-top"><span>{k.label}</span><div className={'stat-icon '+k.tone}>{i===0?<Users size={17}/>:i===1?<ShieldAlert size={17}/>:i===2?<Target size={17}/>:<Activity size={17}/>}</div></div><div className="stat-value-row"><strong>{k.value}</strong><span className={'stat-change '+(i===1?'negative':'positive')}>{i===1?<ArrowDownRight size={12}/>:<ArrowUpRight size={12}/>} {k.change}</span></div><small>{k.note}</small></div>)}</div>}
-function CustomerTable(){return <div className="table-wrap"><table><thead><tr><th>Customer</th><th>Plan</th><th>Risk score</th><th>Status</th></tr></thead><tbody>{customers.map(c=><tr key={c.id}><td><b>{c.name}</b><small>{c.id}</small></td><td>{c.plan}</td><td><div className="risk-score"><div><i style={{width:c.risk+'%'}}/></div><b>{c.risk}%</b></div></td><td><span className={'status '+(c.status==='High'?'high':'medium')}>{c.status}</span></td></tr>)}</tbody></table></div>}
-function Overview({setPage}){return <><Stats/><div className="content-grid top-grid"><Panel title="Customer risk overview" subtitle="Portfolio risk signals across the year" action={<button className="select-button">Last 12 months <ChevronDown size={13}/></button>}><div className="chart-kpis"><div><small>Average churn rate</small><b>46.2%</b></div><div><small>Model benchmark</small><b className="green">94.6%</b></div></div><div className="chart-area"><ResponsiveContainer><AreaChart data={trend} margin={{top:10,right:6,left:-20,bottom:0}}><defs><linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#766CF7" stopOpacity={.24}/><stop offset="95%" stopColor="#766CF7" stopOpacity={0}/></linearGradient></defs><CartesianGrid stroke="#F0F2F7" vertical={false}/><XAxis dataKey="month" tickLine={false} axisLine={false} tick={{fontSize:10,fill:'#9AA3B3'}} dy={9}/><YAxis tickLine={false} axisLine={false} tick={{fontSize:10,fill:'#9AA3B3'}} tickFormatter={v=>v+'%'}/><Tooltip contentStyle={{border:'1px solid #edf0f5',borderRadius:12,fontSize:12}}/><Area type="monotone" dataKey="risk" name="Churn risk" stroke="#766CF7" strokeWidth={2.5} fill="url(#riskGradient)"/></AreaChart></ResponsiveContainer></div><div className="chart-foot"><i/> Churn risk index <span>Illustrative trend</span></div></Panel><Panel title="Customer segments" subtitle="Portfolio distribution" action={<button className="text-link" onClick={()=>setPage('segments')}>View all</button>}><div className="donut-wrap"><ResponsiveContainer><PieChart><Pie data={segments} dataKey="customers" nameKey="name" innerRadius={57} outerRadius={82} paddingAngle={4} stroke="none">{segments.map(s=><Cell key={s.name} fill={s.color}/>)}</Pie><Tooltip formatter={v=>v.toLocaleString()}/></PieChart></ResponsiveContainer><div className="donut-center"><b>100K</b><small>Customers</small></div></div><div className="legend-list">{segments.map(s=><div key={s.name}><i style={{background:s.color}}/><span>{s.name}</span><b>{s.share}%</b><small>{(s.customers/1000).toFixed(1)}K</small></div>)}</div></Panel></div><div className="content-grid bottom-grid"><Panel title="What drives churn?" subtitle="Relative feature importance · baseline model" action={<span className="soft-tag">TOP 5 DRIVERS</span>}><div className="drivers">{drivers.map(d=><div className="driver" key={d.name}><span>{d.name}</span><div><i style={{width:d.score+'%',background:d.color}}/></div><b>{d.score}</b></div>)}</div><p className="fine-print">Illustrative driver scores for layout preview; replace with validated model explainability output.</p></Panel><Panel title="Priority watchlist" subtitle="Customer-level risk preview" action={<button className="text-link" onClick={()=>setPage('churn')}>See all <ChevronRight size={13}/></button>}><CustomerTable/></Panel></div><div className="insight-banner"><div className="banner-icon"><Sparkles size={19}/></div><div><b>Your next best decision starts here.</b><p>Explore strategic explanations for the latest customer signals.</p></div><button className="primary-button" onClick={()=>setPage('insights')}>Explore AI insights <ChevronRight size={15}/></button></div></>}
-function Churn(){const [tenure,setTenure]=useState(12),[charges,setCharges]=useState(240),[tickets,setTickets]=useState(2),[show,setShow]=useState(false);const risk=Math.min(94,Math.max(8,Math.round(57-tenure*.55+(charges-240)*.075+tickets*3.5)));return <><div className="notice"><b>Preview environment.</b> Scenario scores are illustrative only. The trained model and verified inference pipeline are not connected.</div><div className="content-grid scenario-grid"><Panel title="Retention scenario lab" subtitle="Adjust customer attributes to explore a hypothetical risk scenario"><div className="sliders">{[[tenure,setTenure,'Customer tenure',1,72,'months'],[charges,setCharges,'Monthly charges',50,600,'SAR'],[tickets,setTickets,'Support tickets',0,12,'tickets']].map(([v,set,label,min,max,unit])=><div key={label}><div className="slider-title"><b>{label}</b><span>{v} {unit}</span></div><input type="range" min={min} max={max} value={v} onChange={e=>{set(+e.target.value);setShow(false)}}/><div className="slider-limits"><span>{min}</span><span>{max}</span></div></div>)}</div><button className="primary-button full-button" onClick={()=>setShow(true)}><Zap size={15}/> Evaluate scenario</button></Panel><Panel title="Scenario assessment" subtitle="Illustrative risk estimate"><div className="assessment"><div className="risk-ring" style={{'--risk':(show?risk:0)+'%'}}><div><b>{show?risk+'%':'—'}</b><small>Risk score</small></div></div><span className={'status '+(show&&risk>70?'high':'medium')}>{show?(risk>70?'High risk':'Moderate risk'):'Awaiting scenario'}</span><p>{show?'Scenario updated. Validate with the trained model before making retention decisions.':'Adjust the sliders and evaluate to preview the result.'}</p></div></Panel></div><div className="mt-panel"><Panel title="Customer risk watchlist" subtitle="Example records for interaction design"><CustomerTable/></Panel></div></>}
-function Segments(){const [selected,setSelected]=useState('All');const list=segments.filter(s=>selected==='All'||s.name===selected);return <><div className="notice"><b>Interpretation note.</b> Project clustering separation metrics are weak. Treat these groups as exploratory descriptions, not validated customer personas.</div><div className="chips"><button className={selected==='All'?'selected':''} onClick={()=>setSelected('All')}>All segments</button>{segments.map(s=><button key={s.name} className={selected===s.name?'selected':''} onClick={()=>setSelected(s.name)}>{s.name}</button>)}</div><div className="segment-cards">{list.map(s=><div className="stat-card" key={s.name}><div className="segment-top"><b>{s.name}</b><i style={{background:s.color}}/></div><strong>{(s.customers/1000).toFixed(1)}K</strong><small>{s.share}% of sample customers</small><div className="segment-bar"><i style={{width:s.share+'%',background:s.color}}/></div><p>{s.desc}</p></div>)}</div><div className="content-grid segment-grid"><Panel title="Segment size comparison" subtitle="Number of customers by group"><div className="chart-area tall"><ResponsiveContainer><BarChart data={list} margin={{top:10,right:10,left:-15,bottom:0}}><CartesianGrid stroke="#F0F2F7" vertical={false}/><XAxis dataKey="name" tickLine={false} axisLine={false} tick={{fontSize:10,fill:'#9AA3B3'}}/><YAxis tickLine={false} axisLine={false} tick={{fontSize:10,fill:'#9AA3B3'}}/><Tooltip/><Bar dataKey="customers" radius={[7,7,0,0]}>{list.map(s=><Cell key={s.name} fill={s.color}/>)}</Bar></BarChart></ResponsiveContainer></div></Panel><Panel title="What we can explore" subtitle="Questions to guide the next analysis"><div className="question-list">{['Which groups show the highest retention opportunity?','How do tenure and monthly charges differ by group?','Are segment patterns stable across customer cohorts?'].map((q,i)=><div key={q}><i>0{i+1}</i><span>{q}</span></div>)}</div></Panel></div></>}
-function Insights(){const [kind,setKind]=useState('Portfolio briefing'),[generated,setGenerated]=useState(false);return <><div className="hero-banner"><div className="hero-copy"><span><Sparkles size={12}/> STRATEGIC INTELLIGENCE</span><h2>Make your next move<br/>with more clarity.</h2><p>Bring customer signals into focus with concise, actionable executive explanations.</p></div><div className="hero-orb"><BrainCircuit size={65}/></div></div><div className="content-grid insight-grid"><Panel title="Build an executive briefing" subtitle="Choose the context for your insight"><label className="field-label">BRIEFING CONTEXT</label><div className="choice-grid">{['Portfolio briefing','At-risk customers','Segment analysis','Retention strategy'].map(v=><button key={v} onClick={()=>{setKind(v);setGenerated(false)}} className={kind===v?'chosen':''}>{v}</button>)}</div><button className="primary-button full-button" onClick={()=>setGenerated(true)}><Sparkles size={15}/> Generate preview</button><p className="fine-print center">Demo content only · No live GenAI API is connected</p></Panel><Panel title="Executive briefing" subtitle="Your strategic perspective"><div className="briefing">{generated?<><span className="eyebrow">PREVIEW · {kind.toUpperCase()}</span><h3>{kind}: customer portfolio</h3><p>The current sample indicates a substantial churn challenge, with 46.2% of customers marked as churned in the synthetic dataset. This is a useful starting point for investigating retention patterns, but it should not be interpreted as a live operational forecast.</p><hr/><b>Recommended next steps</b><ul><li>Validate the highest-impact churn drivers against the project dataset.</li><li>Prioritize a small retention experiment for the highest-risk cohort.</li><li>Track intervention outcomes before scaling recommendations.</li></ul><div className="notice small-notice">Placeholder copy for UI review, not a response from a generative AI model.</div></>:<div className="empty-brief"><div><MessageSquareText size={22}/></div><b>Your briefing will appear here</b><p>Choose a context and generate a preview to see the experience.</p></div>}</div></Panel></div></>}
-export default function App(){const [page,setPage]=useState('overview'),[open,setOpen]=useState(false);return <div className="app"><Sidebar page={page} setPage={setPage} open={open} setOpen={setOpen}/><div className="main-shell"><Header setOpen={setOpen}/><main className="main-content"><Heading page={page}/>{page==='overview'?<Overview setPage={setPage}/>:page==='churn'?<Churn/>:page==='segments'?<Segments/>:<Insights/>}<footer><span>© 2026 Northstar Intelligence</span><span><i/> Prototype · Sample data, not live predictions</span></footer></main></div></div>}
+const sections = [
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'predictions', label: 'Real-time predictions', icon: Activity },
+  { id: 'segments', label: 'Cluster segmentations', icon: Users },
+  { id: 'genai', label: 'GenAI strategic explanations', icon: Sparkles },
+];
+
+function Brand() {
+  return (
+    <div className="brand">
+      <div className="brand-mark"><Command size={19} /></div>
+      <div>
+        <div className="brand-name">Northstar<span>.</span></div>
+        <div className="brand-caption">CUSTOMER INTELLIGENCE</div>
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({ page, setPage }) {
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-head"><Brand /></div>
+      <nav className="simple-nav">
+        {sections.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            className={'nav-item ' + (page === id ? 'nav-active' : '')}
+            onClick={() => setPage(id)}
+          >
+            <Icon size={18} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
+    </aside>
+  );
+}
+
+function Overview({ setPage }) {
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <div className="eyebrow"><i /> EXECUTIVE OVERVIEW</div>
+          <h1>Executive Overview</h1>
+          <p>A concise view of the key customer intelligence metrics.</p>
+        </div>
+      </div>
+
+      <section className="stats-grid">
+        {kpis.map((kpi, index) => (
+          <article className="stat-card" key={kpi.label}>
+            <div className="stat-top">
+              <span>{kpi.label}</span>
+              <div className={'stat-icon ' + kpi.tone}>
+                {index === 0 ? <Users size={17} /> : index === 1 ? <Activity size={17} /> : index === 2 ? <Activity size={17} /> : <LayoutDashboard size={17} />}
+              </div>
+            </div>
+            <div className="stat-value-row"><strong>{kpi.value}</strong></div>
+            <small>{kpi.note}</small>
+          </article>
+        ))}
+      </section>
+
+      <section className="panel drivers-panel">
+        <div className="panel-heading">
+          <div>
+            <h3>Key Driver Charts</h3>
+            <p>Relative feature importance · illustrative baseline values</p>
+          </div>
+          <span className="soft-tag">TOP DRIVERS</span>
+        </div>
+        <div className="drivers">
+          {drivers.map((driver) => (
+            <div className="driver" key={driver.name}>
+              <span>{driver.name}</span>
+              <div><i style={{ width: driver.score + '%', background: driver.color }} /></div>
+              <b>{driver.score}</b>
+            </div>
+          ))}
+        </div>
+        <p className="fine-print">Illustrative values only. Replace with validated model explainability output before presenting as actual results.</p>
+      </section>
+
+      <section className="section-links" aria-label="Dashboard sections">
+        {sections.filter((section) => section.id !== 'overview').map(({ id, label, icon: Icon }) => (
+          <button className="section-link" key={id} onClick={() => setPage(id)}>
+            <span className="section-link-icon"><Icon size={18} /></span>
+            <span>{label}</span>
+          </button>
+        ))}
+      </section>
+    </>
+  );
+}
+
+const sectionDetails = {
+  predictions: {
+    eyebrow: 'PREDICTIVE ANALYTICS',
+    title: 'Real-time predictions',
+  },
+  segments: {
+    eyebrow: 'CUSTOMER ANALYTICS',
+    title: 'Cluster segmentations',
+  },
+  genai: {
+    eyebrow: 'GENERATIVE INTELLIGENCE',
+    title: 'GenAI strategic explanations',
+  },
+};
+
+function SectionPage({ page }) {
+  const section = sectionDetails[page];
+  return (
+    <div className="page-heading">
+      <div>
+        <div className="eyebrow"><i /> {section.eyebrow}</div>
+        <h1>{section.title}</h1>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const [page, setPage] = React.useState('overview');
+  return (
+    <div className="app">
+      <Sidebar page={page} setPage={setPage} />
+      <div className="main-shell">
+        <main className="main-content">
+          {page === 'overview' ? <Overview setPage={setPage} /> : <SectionPage page={page} />}
+          <footer><span>Northstar · Customer Intelligence</span></footer>
+        </main>
+      </div>
+    </div>
+  );
+}

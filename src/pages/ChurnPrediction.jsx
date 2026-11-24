@@ -26,8 +26,14 @@ export default function ChurnPrediction({ apiUrl }) {
     setError("");
     setResult(null);
 
+    if (Object.values(customer).some((value) => value === "")) {
+      setError("Please adjust all customer sliders and complete every field before predicting.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch(`${apiUrl}/api/predict/churn`, {
+      const response = await fetch(`${apiUrl}/api/predict/churn`,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
@@ -96,21 +102,25 @@ export default function ChurnPrediction({ apiUrl }) {
                   ))}
                 </select>
               ) : (
-                <input
-                  type="number"
-                  required
-                  min={field.min}
-                  max={field.max}
-                  step={field.step}
-                  value={customer[field.name]}
-                  placeholder={`Range: ${field.min} – ${field.max}`}
-                  onChange={(event) =>
-                    updateCustomer(
-                      field.name,
-                      event.target.value === "" ? "" : Number(event.target.value)
-                    )
-                  }
-                />
+                <div className="customer-slider">
+                  <div className="customer-slider-heading">
+                    <span>Value</span>
+                    <strong>{customer[field.name] === "" ? "Not set" : Number(customer[field.name]).toLocaleString()}</strong>
+                  </div>
+                  <input
+                    type="range"
+                    min={field.min}
+                    max={field.max}
+                    step={field.step}
+                    value={customer[field.name] === "" ? field.min : customer[field.name]}
+                    aria-label={field.label}
+                    onChange={(event) => updateCustomer(field.name, Number(event.target.value))}
+                  />
+                  <div className="customer-slider-limits">
+                    <span>{field.min.toLocaleString()}</span>
+                    <span>{field.max.toLocaleString()}</span>
+                  </div>
+                </div>
               )}
             </label>
           ))}

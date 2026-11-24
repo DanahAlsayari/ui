@@ -129,7 +129,8 @@ export default function ChurnPrediction({ apiUrl }) {
                   max={field.max}
                   step={field.step}
                   value={customer[field.name]}
-                  placeholder={`${Number(field.min).toLocaleString("en-US")} – ${Number(field.max).toLocaleString("en-US")}`}
+                  placeholder={`Range: ${Number(field.min).toLocaleString("en-US")} – ${Number(field.max).toLocaleString("en-US")}`}
+                  className="range-placeholder"
                   onChange={(event) => updateCustomer(field.name, event.target.value)}
                 />
               )}

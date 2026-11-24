@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ConfigDict
+
+# -----------------------------------------------------------------------------
+# Application paths, environment configuration, and model artifact location
+# -----------------------------------------------------------------------------
 ROOT=Path(__file__).resolve().parent
 load_dotenv(ROOT/".env")
 ARTIFACTS=ROOT/"artifacts"; ARTIFACTS.mkdir(exist_ok=True)
@@ -16,6 +20,10 @@ TRAIN_URL=os.getenv("TRAIN_DATA_URL","https://raw.githubusercontent.com/jooryA/S
 MODEL_VERSION="baseline-logistic-regression-retrained-from-team-data"
 app=FastAPI(title="CCO Retail Intelligence and Customer Retention Advisory System API",version="1.0.0")
 app.add_middleware(CORSMiddleware,allow_origins=os.getenv("CORS_ORIGINS","http://localhost:5173,http://127.0.0.1:5173").split(","),allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
+
+# -----------------------------------------------------------------------------
+# Request schema: validate all 15 customer features before model inference
+# -----------------------------------------------------------------------------
 class CustomerInput(BaseModel):
  model_config=ConfigDict(extra="forbid")
  age_group:str=Field(pattern=r"^(18-24|25-34|35-44|45-54|55\+)$")
@@ -33,7 +41,15 @@ class CustomerInput(BaseModel):
  cart_abandonment_rate:float=Field(ge=0,le=1)
  loyalty_score:float=Field(ge=0,le=100)
  engagement_score:float=Field(ge=0,le=100)
+
+# -----------------------------------------------------------------------------
+# Model feature order must match the selected training dataset columns
+# -----------------------------------------------------------------------------
 FEATURES=["age_group","gender","region","customer_segment","preferred_channel","purchase_frequency","avg_order_value","total_spent","recency_days","website_visits","discount_usage_rate","email_open_rate","cart_abandonment_rate","loyalty_score","engagement_score"]
+
+# -----------------------------------------------------------------------------
+# Train and cache the Logistic Regression pipeline from the team training data
+# -----------------------------------------------------------------------------
 def train_model():
  from sklearn.compose import ColumnTransformer
  from sklearn.preprocessing import OneHotEncoder,StandardScaler
@@ -53,11 +69,19 @@ def get_model():
   try:return joblib.load(MODEL_PATH)
   except Exception:MODEL_PATH.unlink(missing_ok=True)
  return train_model()
+
+# -----------------------------------------------------------------------------
+# Recorded K-Means segment profiles from the team's analysis
+# -----------------------------------------------------------------------------
 SEGMENTS=[
  {"name":"High-Volume Buyers","customers":37796,"share":37.796,"churned":16637,"churn_rate":44.02,"priority":"Loyalty protection","description":"Buy frequently and spend the most. The project interpretation recommends protecting this group with loyalty rewards.","profile":{"purchase_frequency":24.36,"avg_order_value":234.65,"total_spent":5527.68,"website_visits":122.97,"email_open_rate":0.47,"cart_abandonment_rate":0.46,"engagement_score":50.61}},
  {"name":"Low-Engagement Customers","customers":31485,"share":31.485,"churned":17036,"churn_rate":54.11,"priority":"Re-engagement first","description":"Have fewer website visits, lower email opens, and higher cart abandonment. This group has the highest observed churn rate.","profile":{"purchase_frequency":3.98,"avg_order_value":192.88,"total_spent":688.48,"website_visits":18.38,"email_open_rate":0.31,"cart_abandonment_rate":0.57,"engagement_score":36.78}},
  {"name":"Engaged Light Buyers","customers":30719,"share":30.719,"churned":12551,"churn_rate":40.86,"priority":"Grow purchase value","description":"Purchase less often but show higher email engagement. The project interpretation suggests relevant recommendations to raise order size.","profile":{"purchase_frequency":4.38,"avg_order_value":196.26,"total_spent":774.38,"website_visits":20.37,"email_open_rate":0.65,"cart_abandonment_rate":0.32,"engagement_score":66.63}}
 ]
+
+# -----------------------------------------------------------------------------
+# Prompt templates used by the GenAI recommendations endpoint
+# -----------------------------------------------------------------------------
 ZERO_SHOT="""You are a customer retention analyst preparing a concise report for business executives.
 Task: Analyze the customer's churn prediction and available customer features. Provide practical retention recommendations.
 Customer Information:
@@ -96,23 +120,35 @@ Now analyze this customer:
 - Loyalty Score: {loyalty_score}
 - Cart Abandonment Rate: {cart_abandonment_rate}
 Use the exact sections Risk Summary, Retention Recommendations (exactly two), and Strategic Rationale. Be concise, factual, and executive-friendly. Do not invent facts, infer causation, or guarantee outcomes."""
+
+# -----------------------------------------------------------------------------
+# GenAI request schema and API routes
+# -----------------------------------------------------------------------------
 class InsightRequest(BaseModel):
  customer:CustomerInput
  method:str=Field(pattern="^(Zero-shot|Few-shot)$")
  churn_probability:float=Field(ge=0,le=1)
  churn_prediction:int=Field(ge=0,le=1)
+
+# Health endpoint: reports API availability and required configuration.
 @app.get("/api/health")
 def health():
  return {"status":"ok","service":"CCO Retail Intelligence API","model_artifact_exists":MODEL_PATH.exists(),"model_version":MODEL_VERSION,"genai_configured":bool(os.getenv("GEMINI_API_KEY"))}
+
+# Prediction endpoint: returns the model class, probability, and risk band.
 @app.post("/api/predict/churn")
 def predict_churn(payload:CustomerInput):
  try:
   model=get_model(); row=pd.DataFrame([payload.model_dump()],columns=FEATURES); probability=float(model.predict_proba(row)[0][1]); pred=int(probability>=0.5)
   return {"status":"ok","model":MODEL_VERSION,"churn_prediction":pred,"churn_label":"Churn" if pred else "Retained","churn_probability":round(probability,6),"risk_level":"High" if probability>=0.7 else "Moderate" if probability>=0.4 else "Low","threshold":0.5,"note":"Live estimate from a Logistic Regression pipeline retrained on the team's train_selected.csv with the documented One-Hot Encoding and StandardScaler preprocessing."}
  except Exception as exc: raise HTTPException(status_code=503,detail=f"Prediction model unavailable: {exc}")
+
+# Segment endpoint: returns descriptive project profiles, not live assignments.
 @app.get("/api/segments")
 def segments():
  return {"status":"ok","algorithm":"K-Means (k=3)","silhouette":0.099,"davies_bouldin":2.448,"overall_churn_rate":46.22,"segments":SEGMENTS,"warning":"The project reports weak cluster separation. Treat these as exploratory descriptive groups, not definitive personas or new-customer assignments."}
+
+# GenAI endpoint: sends the validated prediction context to Gemini server-side.
 @app.post("/api/insights")
 def insights(payload:InsightRequest):
  key=os.getenv("GEMINI_API_KEY")

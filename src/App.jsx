@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { shortName } from "./data";
 import { Sidebar } from "./components/Layout";
 import Overview from "./pages/Overview";

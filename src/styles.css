@@ -25,3 +25,23 @@
 .segment-detail{padding:19px}.segment-detail .segment-top i{height:10px;width:10px;border-radius:50%}.segment-detail strong{margin-top:18px}.segment-churn{display:flex;justify-content:space-between;gap:8px;margin-top:14px;border-top:1px solid #f0f2f6;padding-top:12px}.segment-churn span{font-size:9px;color:#8993a5}.segment-churn b{font-size:10px;color:#c47b66}.segment-detail .soft-tag{display:inline-block;margin-top:10px}
 .compact-fields{grid-template-columns:1fr;gap:11px}.method-label{margin-top:18px}.method-brief{min-height:0;margin-top:14px}.generated-report{border:1px solid #edf0f5;border-radius:12px;background:#fbfcfe;padding:15px}.report-meta{display:flex;align-items:center;gap:7px;color:#2b987b;font-size:9px;font-weight:800}.generated-report pre{margin:14px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#536078;font:11px/1.85 'DM Sans',sans-serif}.empty-brief{min-height:320px}
 @media(max-width:900px){.customer-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.driver-insights{grid-template-columns:1fr}}@media(max-width:600px){.customer-fields{grid-template-columns:1fr}.service-panel{align-items:flex-start;flex-direction:column}.result-top{align-items:flex-start}.probability strong{font-size:24px}}
+
+
+/* Overview page: clear section hierarchy and compact correlation bar charts. */
+.overview-section { margin-top: 4px; }
+.overview-section-heading { margin: 0 0 13px; }
+.overview-section-heading h2 { margin: 0; color: #202b40; font-family: Manrope, sans-serif; font-size: 15px; font-weight: 800; }
+.overview-section-heading p { margin: 5px 0 0; color: #a0a8b7; font-size: 10px; }
+.overview-drivers { margin-top: 22px; }
+.driver-chart-list { display: flex; flex-direction: column; gap: 18px; }
+.driver-chart-row { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(100px, 1.4fr) 65px; align-items: center; gap: 16px; }
+.driver-chart-label { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.driver-chart-label b { color: #354158; font-size: 10px; }
+.driver-chart-label small { color: #9aa3b3; font-size: 9px; line-height: 1.4; }
+.driver-chart-track { height: 9px; overflow: hidden; border-radius: 10px; background: #f0f1f6; }
+.driver-chart-track i { display: block; height: 100%; border-radius: 10px; }
+.driver-chart-row strong { color: #59657b; font-size: 10px; text-align: right; white-space: nowrap; }
+@media(max-width:600px) {
+  .driver-chart-row { grid-template-columns: minmax(90px, 1fr) minmax(65px, 1fr) 55px; gap: 9px; }
+  .driver-chart-label small { font-size: 8px; }
+}

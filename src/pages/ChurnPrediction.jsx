@@ -65,7 +65,7 @@ export default function ChurnPrediction({ apiUrl }) {
   return (
     <>
       <PageHeading
-        eyebrow="SUPERVISED LEARNING"
+    
         title="Customer churn prediction"
       />
 
@@ -155,9 +155,9 @@ export default function ChurnPrediction({ apiUrl }) {
         <div className="panel-heading">
           <div>
             <h3>Model performance comparison</h3>
-            <p>Offline evaluation reported by the team (20,000-row test set).</p>
+           
           </div>
-          <span className="soft-tag">PHASE 1 RESULTS</span>
+          
         </div>
         <div className="table-wrap">
           <table>

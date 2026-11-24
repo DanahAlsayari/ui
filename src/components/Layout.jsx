@@ -62,7 +62,7 @@ export function PageHeading({ eyebrow, title, subtitle }) {
   return (
     <div className="page-heading">
       <div>
-        <div className="eyebrow"><i />{eyebrow}</div>
+  
         <h1>{title}</h1>
         <p>{subtitle}</p>
       </div>

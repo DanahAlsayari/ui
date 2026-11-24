@@ -150,40 +150,38 @@ export default function ChurnPrediction({ apiUrl }) {
         )}
       </form>
 
-      {/* Recorded offline evaluation results from the team's project. */}
+      {/* Selected model and its recorded offline evaluation metrics. */}
       <section className="panel mt-panel">
         <div className="panel-heading">
           <div>
-            <h3>Model performance comparison</h3>
-           
+            <h3>Model Confidence Metrics</h3>
+            <p>Performance of the Logistic Regression baseline used for churn prediction.</p>
           </div>
-          
+          <span className="soft-tag">SELECTED MODEL</span>
         </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Model</th><th>Accuracy</th><th>Precision</th>
-                <th>Recall</th><th>F1-score</th><th>ROC-AUC</th>
-              </tr>
-            </thead>
-            <tbody>
-              {modelResults.map((model) => (
-                <tr
-                  key={model.name}
-                  className={model.name === "Logistic Regression · Baseline" ? "selected-model-row" : ""}
-                >
-                  <td><b>{model.name}</b></td>
-                  <td>{model.accuracy}</td>
-                  <td>{model.precision}</td>
-                  <td>{model.recall}</td>
-                  <td>{model.f1}</td>
-                  <td>{model.auc}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="model-summary">
+          <div className="model-summary-icon"><Activity size={19} /></div>
+          <div>
+            <b>Logistic Regression · Baseline</b>
+            <p>Selected to estimate customer churn using the 15 customer features, with One-Hot Encoding for categorical data and StandardScaler for numerical data.</p>
+          </div>
         </div>
+        <div className="model-metrics-grid">
+          {[
+            { label: "Accuracy", value: modelResults[0].accuracy, detail: "Overall correct predictions" },
+            { label: "Precision", value: modelResults[0].precision, detail: "Correct positive predictions" },
+            { label: "Recall", value: modelResults[0].recall, detail: "Churn cases correctly identified" },
+            { label: "F1-score", value: modelResults[0].f1, detail: "Balance of precision and recall" },
+            { label: "ROC-AUC", value: modelResults[0].auc, detail: "Ability to distinguish the classes" },
+          ].map((metric) => (
+            <div className="model-metric" key={metric.label}>
+              <span>{metric.label}</span>
+              <strong>{metric.value}</strong>
+              <small>{metric.detail}</small>
+            </div>
+          ))}
+        </div>
+        <p className="fine-print">Reported offline evaluation on the team's 20,000-row test set (Phase 1). These are model evaluation metrics, while each live prediction's churn probability is an individual estimate—not a guarantee.</p>
       </section>
     </>
   );

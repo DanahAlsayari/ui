@@ -28,8 +28,10 @@ const clusterDescriptions = {
 export default function CustomerSegments({ apiUrl }) {
   const [segmentData, setSegmentData] = useState(null);
   const [error, setError] = useState("");
-  const emptyCustomer = Object.fromEntries(fields.map((field) => [field.name, ["discount_usage_rate", "email_open_rate", "cart_abandonment_rate"].includes(field.name) ? field.min : ""]));
+  const emptyCustomer = Object.fromEntries(fields.map((field) => [field.name, ""]));
   const [formData, setFormData] = useState(emptyCustomer);
+  const [touchedSliders, setTouchedSliders] = useState({});
+  const [validationErrors, setValidationErrors] = useState({});
   const [result, setResult] = useState(null);
   const [predicting, setPredicting] = useState(false);
   const [predictError, setPredictError] = useState("");
@@ -48,24 +50,38 @@ export default function CustomerSegments({ apiUrl }) {
 
   const updateField = (name, value, type) => {
     setFormData((current) => ({ ...current, [name]: type === "select" ? value : value === "" ? "" : Number(value) }));
+    if (type === "slider") setTouchedSliders((current) => ({ ...current, [name]: true }));
+    setValidationErrors((current) => ({ ...current, [name]: "" }));
     setResult(null);
     setPredictError("");
   };
 
   const resetForm = () => {
     setFormData({ ...emptyCustomer });
+    setTouchedSliders({});
+    setValidationErrors({});
     setResult(null);
     setPredictError("");
   };
 
   const identifyCluster = async (event) => {
     event.preventDefault();
-    setPredicting(true);
+    const missing = {};
+    fields.forEach((field) => {
+      const isSlider = ["discount_usage_rate", "email_open_rate", "cart_abandonment_rate"].includes(field.name);
+      if (isSlider ? !touchedSliders[field.name] : formData[field.name] === "" || formData[field.name] == null) {
+        missing[field.name] = "Please fill out this field.";
+      }
+    });
+    setValidationErrors(missing);
     setPredictError("");
     setResult(null);
+    if (Object.keys(missing).length) return;
+    setPredicting(true);
     try {
       const response = await fetch(`${apiUrl}/api/predict/cluster`, {
         method: "POST",
+        cache: "no-store",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Object.fromEntries(
           fields.map((field) => [
@@ -174,12 +190,12 @@ export default function CustomerSegments({ apiUrl }) {
           <form onSubmit={identifyCluster}>
             <div className="customer-fields cluster-customer-fields">
               {fields.map((field) => (
-                <label className="customer-field" key={field.name}>
+                <label className={`customer-field${validationErrors[field.name] ? " has-error" : ""}`} key={field.name}>
                   <span>{field.label}</span>
                   {field.type === "select" ? (
                     <select
-                      required
                       value={formData[field.name]}
+                      aria-invalid={Boolean(validationErrors[field.name])}
                       onChange={(event) => updateField(field.name, event.target.value, "select")}
                     >
                       <option value="">Select {field.label.toLowerCase()}</option>
@@ -189,7 +205,7 @@ export default function CustomerSegments({ apiUrl }) {
                     <div className="customer-slider">
                       <div className="customer-slider-heading">
                         <span>Value</span>
-                        <strong>{formData[field.name] === "" ? "—" : Number(formData[field.name]).toFixed(2)}</strong>
+                        <strong>{!touchedSliders[field.name] ? "—" : Number(formData[field.name]).toFixed(2)}</strong>
                       </div>
                       <input
                         type="range"
@@ -197,8 +213,9 @@ export default function CustomerSegments({ apiUrl }) {
                         max={field.max}
                         step={field.step}
                         value={formData[field.name] === "" ? field.min : formData[field.name]}
+                        aria-invalid={Boolean(validationErrors[field.name])}
                         aria-label={field.label}
-                        onChange={(event) => updateField(field.name, event.target.value, "number")}
+                        onChange={(event) => updateField(field.name, event.target.value, "slider")}
                       />
                       <div className="customer-slider-limits">
                         <span>{field.min}</span>
@@ -211,13 +228,15 @@ export default function CustomerSegments({ apiUrl }) {
                       min={field.min}
                       max={field.max}
                       step={field.step}
-                      required
                       value={formData[field.name]}
+                      aria-invalid={Boolean(validationErrors[field.name])}
                       placeholder={`Range: ${Number(field.min).toLocaleString("en-US")} – ${Number(field.max).toLocaleString("en-US")}`}
                       className="range-placeholder"
+                      aria-invalid={Boolean(validationErrors[field.name])}
                       onChange={(event) => updateField(field.name, event.target.value, "number")}
                     />
                   )}
+                  {validationErrors[field.name] && <small className="field-validation-error">{validationErrors[field.name]}</small>}
                 </label>
               ))}
             </div>

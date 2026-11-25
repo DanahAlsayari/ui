@@ -69,27 +69,10 @@ export default function Overview({ health }) {
 
         <p className="fine-print">
           Bars show the absolute correlation magnitude; the sign indicates direction.
-          Correlation describes association and does not establish causation or
-          individual feature importance.
         </p>
       </section>
 
-      {/* API status is read from GET /api/health in the shared application shell. */}
-      <section className="panel service-panel">
-        <div>
-          <h3>System connectivity</h3>
-          <p>
-            API: {health?.status === "ok" ? "Connected" : "Not reachable"} ·
-            Model: {health?.model_artifact_exists
-              ? "Artifact cached"
-              : "Loads from team training data on first prediction"} ·
-            Gemini: {health?.genai_configured ? "Key configured" : "Key not configured"}
-          </p>
-        </div>
-        <span className={`service-pill ${health?.status === "ok" ? "connected" : "disconnected"}`}>
-          {health?.status === "ok" ? "API ONLINE" : "API OFFLINE"}
-        </span>
-      </section>
+    
     </>
   );
 }

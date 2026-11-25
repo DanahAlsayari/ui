@@ -6,28 +6,28 @@ export const projectName =
 export const shortName = "CCO Retail Intelligence";
 
 // -----------------------------------------------------------------------------
-// Executive overview: headline KPIs and exploratory correlation findings
+// Executive overview: business-focused churn and retention KPIs
 // -----------------------------------------------------------------------------
 export const kpis = [
   {
-    label: "Total customers",
-    value: "100,000",
-    note: "Retail Intelligence synthetic dataset",
-  },
-  {
-    label: "Observed churn",
+    label: "Overall churn rate",
     value: "46.22%",
-    note: "46,224 churned customers",
+    note: "Share of customers who churned",
   },
   {
-    label: "Baseline accuracy",
-    value: "94.59%",
-    note: "Logistic Regression · test set",
+    label: "Churned customers",
+    value: "46,224",
+    note: "Out of 100,000 customers",
   },
   {
-    label: "K-Means segments",
-    value: "3",
-    note: "Exploratory customer groups",
+    label: "Highest segment churn",
+    value: "54.11%",
+    note: "Low-Engagement Customers",
+  },
+  {
+    label: "Customers in highest-churn segment",
+    value: "31,485",
+    note: "31.5% of the customer base",
   },
 ];
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { AlertTriangle, BrainCircuit, CheckCircle2, RefreshCw, Sparkles } from "lucide-react";
+import { AlertTriangle, CheckCircle2, RefreshCw, Sparkles } from "lucide-react";
 import { genaiMethods, initialCustomer } from "../data";
 import { PageHeading, Notice } from "../components/Layout";
 
@@ -79,19 +79,6 @@ export default function GenAIRecommendations({ apiUrl }) {
         title="Retention recommendations"
         subtitle="Generate an executive briefing from a real churn prediction using the project's Zero-shot or Few-shot approach."
       />
-
-      {/* Explains the sequence: model prediction first, Gemini report second. */}
-      <section className="hero-banner">
-        <div className="hero-copy">
-          <span><Sparkles size={12} /> GEMINI-POWERED WORKFLOW</span>
-          <h2>From churn signals<br />to retention actions.</h2>
-          <p>
-            Run the selected churn model, then pass its prediction and customer
-            indicators to the secured Gemini API.
-          </p>
-        </div>
-        <div className="hero-orb"><BrainCircuit size={55} /></div>
-      </section>
 
       <div className="content-grid insight-grid">
         <form className="panel" onSubmit={handleGenerate}>

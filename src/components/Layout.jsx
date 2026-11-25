@@ -2,7 +2,7 @@ import React from "react";
 import {
   Activity,
   ArrowUpRight,
-  Command,
+  BrainCircuit,
   LayoutDashboard,
   Sparkles,
   Users,
@@ -22,7 +22,7 @@ function Brand() {
   return (
     <div className="brand">
       <div className="brand-mark">
-        <Command size={19} />
+        <BrainCircuit size={22} strokeWidth={1.9} />
       </div>
       <div>
         <div className="brand-name">CCO<span>.</span></div>

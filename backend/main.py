@@ -252,7 +252,8 @@ def insights(payload:InsightRequest):
   values={"churn_prediction":payload.churn_prediction,"churn_probability":f"{payload.churn_probability*100:.1f}%","recency_days":c.recency_days,"loyalty_score":c.loyalty_score,"cart_abandonment_rate":f"{c.cart_abandonment_rate*100:.1f}%"}
   prompt=(ZERO_SHOT if payload.method=="Zero-shot" else FEW_SHOT).format(**values)
   model_name=os.getenv("GEMINI_MODEL","gemini-2.5-flash")
-  response=genai.Client(api_key=key).models.generate_content(model=model_name,contents=prompt)
+  client=genai.Client(api_key=key)
+  response=client.models.generate_content(model=model_name,contents=prompt)
   if not response.text: raise RuntimeError("Gemini returned an empty response.")
   return {"status":"ok","provider":"Gemini","model":model_name,"method":payload.method,"report":response.text}
  except Exception as exc: raise HTTPException(status_code=502,detail=f"GenAI generation failed: {exc}")

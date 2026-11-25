@@ -5,6 +5,8 @@ import { customerFields as fields, segments as fallbackSegments } from "../data"
 import { PageHeading, Notice } from "../components/Layout";
 
 const clusterColors = ["#756BF6", "#39B7A4", "#F0B75E"];
+const clusterTints = ["#F3F1FF", "#EAF8F5", "#FFF7E8"];
+const clusterBorders = ["#DDD9FF", "#CDEDE5", "#F5E4BF"];
 const formatReason = (reason) => {
   if (typeof reason === "string" || typeof reason === "number") return String(reason);
   if (reason == null) return "";
@@ -252,7 +254,7 @@ export default function CustomerSegments({ apiUrl }) {
           )}
 
           {result && (
-            <div className="cluster-result-panel">
+            <div className="cluster-result-panel" style={{ "--cluster-accent": clusterColors[result.cluster] || clusterColors[0], "--cluster-tint": clusterTints[result.cluster] || clusterTints[0], "--cluster-border": clusterBorders[result.cluster] || clusterBorders[0] }}>
               <div className="cluster-result-top">
                 <div className="cluster-result-check"><CheckCircle2 size={18} /></div>
                 <div>

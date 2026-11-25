@@ -37,8 +37,9 @@ export default function CustomerSegments({ apiUrl }) {
   const [result, setResult] = useState(null);
   const [predicting, setPredicting] = useState(false);
   const [predictError, setPredictError] = useState("");
-  const [selectedCluster, setSelectedCluster] = useState("All clusters");
-  const [maxChurnRate, setMaxChurnRate] = useState(60);
+  const [filterAttribute, setFilterAttribute] = useState("email_open_rate");
+  const [filterDirection, setFilterDirection] = useState("below");
+  const [filterThreshold, setFilterThreshold] = useState(0.4);
 
   useEffect(() => {
     fetch(`${apiUrl}/api/segments`)
@@ -51,10 +52,24 @@ export default function CustomerSegments({ apiUrl }) {
   }, [apiUrl]);
 
   const rows = segmentData?.segments || fallbackSegments;
+  const attributeFilters = {
+    purchase_frequency: { label: "Purchase Frequency", min: 0, max: 30, step: 0.5, unit: "" },
+    avg_order_value: { label: "Average Order Value", min: 0, max: 250, step: 5, unit: "" },
+    total_spent: { label: "Total Spent", min: 0, max: 6000, step: 100, unit: "" },
+    website_visits: { label: "Website Visits", min: 0, max: 130, step: 5, unit: "" },
+    email_open_rate: { label: "Email Open Rate", min: 0, max: 1, step: 0.05, unit: "%" },
+    cart_abandonment_rate: { label: "Cart Abandonment Rate", min: 0, max: 1, step: 0.05, unit: "%" },
+    engagement_score: { label: "Engagement Score", min: 0, max: 100, step: 5, unit: "" },
+  };
+  const activeAttribute = attributeFilters[filterAttribute];
   const filteredRows = rows.filter((segment) => {
-    const rate = Number(segment.churn_rate ?? segment.churn);
-    return (selectedCluster === "All clusters" || segment.name === selectedCluster) && rate <= maxChurnRate;
+    const value = Number(segment.profile?.[filterAttribute]);
+    if (!Number.isFinite(value)) return false;
+    return filterDirection === "below" ? value <= filterThreshold : value >= filterThreshold;
   });
+  const formatAttributeValue = (value) => activeAttribute.unit === "%"
+    ? `${(Number(value) * 100).toFixed(0)}%`
+    : Number(value).toLocaleString("en-US", { maximumFractionDigits: 2 });
 
   const demoCustomers = {
     highVolume: { age_group:"35-44", gender:"Male", region:"Central", customer_segment:"VIP", preferred_channel:"Online", purchase_frequency:25, avg_order_value:235, total_spent:5500, recency_days:10, website_visits:125, discount_usage_rate:0.20, email_open_rate:0.47, cart_abandonment_rate:0.20, loyalty_score:85, engagement_score:80 },
@@ -161,23 +176,33 @@ export default function CustomerSegments({ apiUrl }) {
           </div>
         )}
 
-        <div className="segment-filter-panel">
+        <div className="segment-filter-panel attribute-filter-panel">
           <label className="segment-filter-control">
-            <span>Customer cluster</span>
-            <select value={selectedCluster} onChange={(event) => setSelectedCluster(event.target.value)}>
-              <option>All clusters</option>
-              {rows.map((segment) => <option key={segment.name} value={segment.name}>{segment.name}</option>)}
+            <span>Customer attribute</span>
+            <select value={filterAttribute} onChange={(event) => {
+              const next = event.target.value;
+              setFilterAttribute(next);
+              setFilterThreshold(attributeFilters[next].unit === "%" ? 0.4 : attributeFilters[next].max / 2);
+            }}>
+              {Object.entries(attributeFilters).map(([key, item]) => <option key={key} value={key}>{item.label}</option>)}
             </select>
           </label>
-          <label className="segment-filter-control segment-churn-filter">
-            <span>Maximum observed churn rate <strong>{maxChurnRate}%</strong></span>
-            <input type="range" min="0" max="60" step="1" value={maxChurnRate} onChange={(event) => setMaxChurnRate(Number(event.target.value))} />
-            <small>Show segments at or below this churn rate</small>
+          <label className="segment-filter-control">
+            <span>Condition</span>
+            <select value={filterDirection} onChange={(event) => setFilterDirection(event.target.value)}>
+              <option value="below">Below or equal to</option>
+              <option value="above">Above or equal to</option>
+            </select>
+          </label>
+          <label className="segment-filter-control segment-attribute-threshold">
+            <span>Threshold <strong>{formatAttributeValue(filterThreshold)}</strong></span>
+            <input type="range" min={activeAttribute.min} max={activeAttribute.max} step={activeAttribute.step} value={filterThreshold} onChange={(event) => setFilterThreshold(Number(event.target.value))} />
+            <small>Compare against each cluster’s average {activeAttribute.label.toLowerCase()}</small>
           </label>
           <div className="segment-filter-summary">
             <strong>{filteredRows.length}</strong>
-            <span>of {rows.length} segments shown</span>
-            <button type="button" className="text-button" onClick={() => { setSelectedCluster("All clusters"); setMaxChurnRate(60); }}>Reset filters</button>
+            <span>of {rows.length} clusters match</span>
+            <button type="button" className="text-button" onClick={() => { setFilterAttribute("email_open_rate"); setFilterDirection("below"); setFilterThreshold(0.4); }}>Reset filter</button>
           </div>
         </div>
         <div className="segment-cards cluster-profile-cards">
@@ -200,6 +225,10 @@ export default function CustomerSegments({ apiUrl }) {
                 <div className="segment-churn">
                   <span>Observed churn rate</span>
                   <b>{churnRate.toFixed(2)}%</b>
+                </div>
+                <div className="segment-attribute-match">
+                  <span>{activeAttribute.label} average</span>
+                  <b>{formatAttributeValue(segment.profile[filterAttribute])}</b>
                 </div>
                 <p>{description}</p>
                 <div className="segment-action">

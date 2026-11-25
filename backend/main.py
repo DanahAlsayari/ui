@@ -247,7 +247,7 @@ def insights(payload:InsightRequest):
  key=os.getenv("GEMINI_API_KEY")
  if not key: raise HTTPException(status_code=503,detail="GEMINI_API_KEY is not configured. Add it to backend/.env; never expose it in the frontend.")
  try:
-  from google import genai, types
+  from google import genai
   c=payload.customer
   values={"churn_prediction":payload.churn_prediction,"churn_probability":f"{payload.churn_probability*100:.1f}%","recency_days":c.recency_days,"loyalty_score":c.loyalty_score,"cart_abandonment_rate":f"{c.cart_abandonment_rate*100:.1f}%"}
   prompt=(ZERO_SHOT if payload.method=="Zero-shot" else FEW_SHOT).format(**values)

@@ -2315,7 +2315,7 @@ footer i {
 .cluster-form-actions .primary-button {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex ;
     gap: 8px;
     min-height: 38px;
     padding: 0 14px

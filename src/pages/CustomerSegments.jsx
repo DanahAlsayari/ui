@@ -183,9 +183,7 @@ export default function CustomerSegments({ apiUrl }) {
               <h3>Customer information</h3>
                  <p>Enter the customer’s feature values to identify customer cluster.</p>
             </div>
-            <button type="button" className="reset-button" onClick={resetForm}>
-              <RotateCcw size={12} /> Reset
-            </button>
+            
           </div>
 
           <form onSubmit={identifyCluster}>

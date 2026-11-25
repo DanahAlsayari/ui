@@ -2322,11 +2322,11 @@ footer i {
 
 .cluster-result-check {
     display: grid;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
     place-items: center;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--cluster-tint, #e8f6ef);
     color: var(--cluster-accent, #2d9a77)
 }

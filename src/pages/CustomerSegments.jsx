@@ -182,7 +182,8 @@ export default function CustomerSegments({ apiUrl }) {
         </div>
         <div className="segment-cards cluster-profile-cards">
           {filteredRows.length ? filteredRows.map((segment, index) => {
-            const color = clusterColors[index % clusterColors.length];
+            const originalIndex = rows.findIndex((item) => item.name === segment.name);
+            const color = clusterColors[originalIndex % clusterColors.length];
             const churnRate = Number(segment.churn_rate ?? segment.churn);
             const description = clusterDescriptions[segment.name] || segment.description || segment.desc;
             return (

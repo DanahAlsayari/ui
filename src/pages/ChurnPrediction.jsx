@@ -151,8 +151,11 @@ export default function ChurnPrediction({ apiUrl }) {
         )}
 
         {/* Display the API response only after a successful prediction. */}
-        {result && (
-          <div className="prediction-result">
+        {result && (() => {
+          const churnProbability = Number(result.churn_probability) || 0;
+          const churnTone = churnProbability < 0.4 ? "low" : churnProbability < 0.7 ? "medium" : "high";
+          return (
+          <div className={`prediction-result prediction-result-${churnTone}`}>
             <div className="result-top">
               <div>
                 <span className="field-label">PREDICTED CUSTOMER STATUS</span>
@@ -169,7 +172,8 @@ export default function ChurnPrediction({ apiUrl }) {
             </div>
             <p className="fine-print">{result.note}</p>
           </div>
-        )}
+          );
+        })()}
       </form>
 
       {/* Selected model and its recorded offline evaluation metrics. */}

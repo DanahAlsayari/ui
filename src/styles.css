@@ -1705,11 +1705,31 @@ footer i {
 }
 
 .prediction-result {
+    --churn-accent: #269b75;
+    --churn-tint: #f0faf5;
+    --churn-border: #cfeade;
     margin-top: 20px;
-    border: 1px solid #e4eee9;
+    border: 1px solid var(--churn-border);
     border-radius: 12px;
-    background: #f8fcfa;
+    background: var(--churn-tint);
     padding: 18px
+}
+
+.prediction-result-medium {
+    --churn-accent: #c58a18;
+    --churn-tint: #fff9e9;
+    --churn-border: #f1dfb4
+}
+
+.prediction-result-high {
+    --churn-accent: #d64b52;
+    --churn-tint: #fff2f2;
+    --churn-border: #f0cccc
+}
+
+.prediction-result .result-top h3,
+.prediction-result .probability strong {
+    color: var(--churn-accent)
 }
 
 .result-top {
@@ -1754,14 +1774,14 @@ footer i {
     margin-top: 15px;
     overflow: hidden;
     border-radius: 10px;
-    background: #e8efeb
+    background: var(--churn-border)
 }
 
 .probability-track i {
     display: block;
     height: 100%;
     border-radius: 10px;
-    background: linear-gradient(90deg, #64b79e, #338d75)
+    background: var(--churn-accent)
 }
 
 .error-panel {

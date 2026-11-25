@@ -37,6 +37,8 @@ export default function CustomerSegments({ apiUrl }) {
   const [result, setResult] = useState(null);
   const [predicting, setPredicting] = useState(false);
   const [predictError, setPredictError] = useState("");
+  const [selectedCluster, setSelectedCluster] = useState("All clusters");
+  const [maxChurnRate, setMaxChurnRate] = useState(60);
 
   useEffect(() => {
     fetch(`${apiUrl}/api/segments`)
@@ -49,6 +51,10 @@ export default function CustomerSegments({ apiUrl }) {
   }, [apiUrl]);
 
   const rows = segmentData?.segments || fallbackSegments;
+  const filteredRows = rows.filter((segment) => {
+    const rate = Number(segment.churn_rate ?? segment.churn);
+    return (selectedCluster === "All clusters" || segment.name === selectedCluster) && rate <= maxChurnRate;
+  });
 
   const demoCustomers = {
     highVolume: { age_group:"35-44", gender:"Male", region:"Central", customer_segment:"VIP", preferred_channel:"Online", purchase_frequency:25, avg_order_value:235, total_spent:5500, recency_days:10, website_visits:125, discount_usage_rate:0.20, email_open_rate:0.47, cart_abandonment_rate:0.20, loyalty_score:85, engagement_score:80 },
@@ -155,9 +161,29 @@ export default function CustomerSegments({ apiUrl }) {
           </div>
         )}
 
+        <div className="segment-filter-panel">
+          <label className="segment-filter-control">
+            <span>Customer cluster</span>
+            <select value={selectedCluster} onChange={(event) => setSelectedCluster(event.target.value)}>
+              <option>All clusters</option>
+              {rows.map((segment) => <option key={segment.name} value={segment.name}>{segment.name}</option>)}
+            </select>
+          </label>
+          <label className="segment-filter-control segment-churn-filter">
+            <span>Maximum observed churn rate <strong>{maxChurnRate}%</strong></span>
+            <input type="range" min="0" max="60" step="1" value={maxChurnRate} onChange={(event) => setMaxChurnRate(Number(event.target.value))} />
+            <small>Show segments at or below this churn rate</small>
+          </label>
+          <div className="segment-filter-summary">
+            <strong>{filteredRows.length}</strong>
+            <span>of {rows.length} segments shown</span>
+            <button type="button" className="text-button" onClick={() => { setSelectedCluster("All clusters"); setMaxChurnRate(60); }}>Reset filters</button>
+          </div>
+        </div>
         <div className="segment-cards cluster-profile-cards">
-          {rows.map((segment, index) => {
-            const color = clusterColors[index % clusterColors.length];
+          {filteredRows.length ? filteredRows.map((segment, index) => {
+            const originalIndex = rows.findIndex((item) => item.name === segment.name);
+            const color = clusterColors[originalIndex % clusterColors.length];
             const churnRate = Number(segment.churn_rate ?? segment.churn);
             const description = clusterDescriptions[segment.name] || segment.description || segment.desc;
             return (
@@ -186,7 +212,9 @@ export default function CustomerSegments({ apiUrl }) {
                 </div>
               </article>
             );
-          })}
+          }) : (
+            <div className="empty-filter-state">No customer segments match these filters. Adjust the cluster or churn-rate selection.</div>
+          )}
         </div>
       </section>
 

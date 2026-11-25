@@ -185,12 +185,13 @@ export default function ChurnPrediction({ apiUrl }) {
                 </div>
                 <div className="probability">
                   <strong>{(churnProbability * 100).toFixed(1)}%</strong>
-                  <small>Churn probability</small>
+                  <small>Model-estimated churn probability</small>
                 </div>
               </div>
               <div className="probability-track">
                 <i style={{ width: `${churnProbability * 100}%` }} />
               </div>
+              <p className="probability-note">This percentage is the model’s estimated probability that the customer belongs to the churn class. It is not a separate confidence score or a guarantee of the customer’s future behavior.</p>
               <p className="result-explanation">
                 {isChurned
                   ? "This customer is predicted to leave. Consider taking retention actions."
@@ -205,8 +206,8 @@ export default function ChurnPrediction({ apiUrl }) {
       <section className="panel mt-panel">
         <div className="panel-heading">
           <div>
-            <h3>Model Confidence Metrics</h3>
-            <p>Performance of the Logistic Regression baseline used for churn prediction.</p>
+            <h3>Model Evaluation Metrics</h3>
+            <p>Offline test-set performance of the selected Logistic Regression baseline. These metrics describe overall model performance, not confidence in this individual prediction.</p>
           </div>
           <span className="soft-tag">SELECTED MODEL</span>
         </div>

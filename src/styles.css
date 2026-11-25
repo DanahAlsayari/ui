@@ -2561,3 +2561,41 @@ footer i {
     font-size: 10px;
     line-height: 1.55;
 }
+
+
+/* Part C: distinguish model-estimated churn probability from evaluation metrics. */
+.probability-note{margin:10px 0 0;color:#7b8799;font-size:12px;line-height:1.65}
+.model-metrics-grid{margin-top:16px}
+.model-metric span{font-size:11px}
+.model-metric strong{font-size:23px}
+.model-metric small{font-size:10px;line-height:1.5}
+
+/* Part C: interactive segment exploration filters. */
+.segment-filter-panel{display:grid;grid-template-columns:minmax(190px,.9fr) minmax(240px,1.2fr) auto;align-items:end;gap:16px;margin:18px 0 14px;padding:16px;border:1px solid #edf0f5;border-radius:13px;background:#fbfcfe}
+.segment-filter-control{display:flex;flex-direction:column;gap:8px;min-width:0}
+.segment-filter-control>span{color:#59667b;font-size:12px;font-weight:700}
+.segment-filter-control select{width:100%;min-height:40px;border:1px solid #e4e8f0;border-radius:8px;background:#fff;color:#26334a;padding:0 11px;font:inherit;font-size:12px}
+.segment-churn-filter>span{display:flex;justify-content:space-between;gap:8px}
+.segment-churn-filter>span strong{color:#655be9;font-size:13px}
+.segment-churn-filter input{width:100%;accent-color:#756bf6}
+.segment-churn-filter small{color:#929bad;font-size:10px}
+.segment-filter-summary{display:flex;align-items:center;gap:7px;white-space:nowrap;color:#7d889a;font-size:11px}
+.segment-filter-summary>strong{color:#202b40;font-size:19px}
+.text-button{border:0;background:transparent;color:#655be9;cursor:pointer;font:inherit;font-weight:700;padding:5px}
+.empty-filter-state{grid-column:1/-1;padding:26px;text-align:center;color:#7d889a;border:1px dashed #dce1eb;border-radius:12px;font-size:13px}
+
+/* Part C: structured GenAI executive report typography and hierarchy. */
+.report-sections{display:flex;flex-direction:column;gap:13px;margin-top:17px}
+.report-section{padding:17px 18px;border:1px solid #edf0f5;border-radius:12px;background:#fff}
+.report-section-0{background:#f8f8ff;border-color:#e7e4ff}
+.report-section-heading{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.report-section-number{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:8px;background:#efedff;color:#655be9;font-size:11px;font-weight:800}
+.report-section-heading h4{margin:0;color:#202b40;font-family:Manrope,sans-serif;font-size:15px;font-weight:800}
+.report-risk-copy{margin:0;color:#536078;font-size:13px;line-height:1.8}
+.report-action-list{display:flex;flex-direction:column;gap:11px;list-style:none;margin:0;padding:0}
+.report-action-list li{display:flex;align-items:flex-start;gap:10px}
+.report-item-number{display:inline-flex;flex:0 0 23px;align-items:center;justify-content:center;width:23px;height:23px;border-radius:50%;background:#f0efff;color:#655be9;font-size:11px;font-weight:800}
+.report-action-list p{margin:0;color:#536078;font-size:13px;line-height:1.75}
+.report-meta{font-size:10px}
+@media(max-width:900px){.segment-filter-panel{grid-template-columns:1fr 1fr}.segment-filter-summary{grid-column:1/-1}}
+@media(max-width:600px){.segment-filter-panel{grid-template-columns:1fr}.segment-filter-summary{grid-column:auto;flex-wrap:wrap}.report-section{padding:14px}.report-section-heading h4{font-size:14px}.report-risk-copy,.report-action-list p{font-size:12px}}

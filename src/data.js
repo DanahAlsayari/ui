@@ -68,6 +68,7 @@ export const segments = [
     share: 37.796,
     churn: 44.02,
     color: "#756BF6",
+    profile: { purchase_frequency: 24.36, avg_order_value: 234.65, total_spent: 5527.68, website_visits: 122.97, email_open_rate: 0.47, cart_abandonment_rate: 0.46, engagement_score: 50.61 },
     desc: "Buy frequently and spend the most. Project interpretation recommends loyalty rewards.",
   },
   {
@@ -76,6 +77,7 @@ export const segments = [
     share: 31.485,
     churn: 54.11,
     color: "#39B7A4",
+    profile: { purchase_frequency: 3.98, avg_order_value: 192.88, total_spent: 688.48, website_visits: 18.38, email_open_rate: 0.31, cart_abandonment_rate: 0.57, engagement_score: 36.78 },
     desc: "Fewer website visits, lower email opens, and higher cart abandonment. Highest observed churn.",
   },
   {
@@ -84,6 +86,7 @@ export const segments = [
     share: 30.719,
     churn: 40.86,
     color: "#F0B75E",
+    profile: { purchase_frequency: 4.38, avg_order_value: 196.26, total_spent: 774.38, website_visits: 20.37, email_open_rate: 0.65, cart_abandonment_rate: 0.32, engagement_score: 66.63 },
     desc: "Purchase less often but show higher email engagement. Project interpretation suggests relevant recommendations to raise order size.",
   },
 ];

@@ -2599,3 +2599,17 @@ footer i {
 .report-meta{font-size:10px}
 @media(max-width:900px){.segment-filter-panel{grid-template-columns:1fr 1fr}.segment-filter-summary{grid-column:1/-1}}
 @media(max-width:600px){.segment-filter-panel{grid-template-columns:1fr}.segment-filter-summary{grid-column:auto;flex-wrap:wrap}.report-section{padding:14px}.report-section-heading h4{font-size:14px}.report-risk-copy,.report-action-list p{font-size:12px}}
+
+
+/* Attribute-based cluster exploration filters. */
+.attribute-filter-panel{grid-template-columns:repeat(3,minmax(0,1fr)) auto}
+.segment-attribute-threshold>span{display:flex;justify-content:space-between;gap:8px}
+.segment-attribute-threshold>span strong{color:#655be9;font-size:13px}
+.segment-attribute-threshold input{width:100%;accent-color:#756bf6}
+.segment-attribute-threshold small{color:#929bad;font-size:10px}
+.segment-attribute-match{display:flex;justify-content:space-between;gap:8px;margin-top:9px;color:#7d889a;font-size:10px}
+.segment-attribute-match b{color:#5148c8;font-size:10px}
+.prediction-confidence-details{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;color:#778397;font-size:10px}
+.prediction-confidence-details b{color:#354158}
+@media(max-width:900px){.attribute-filter-panel{grid-template-columns:1fr 1fr}.attribute-filter-panel .segment-filter-summary{grid-column:1/-1}}
+@media(max-width:600px){.attribute-filter-panel{grid-template-columns:1fr}.attribute-filter-panel .segment-filter-summary{grid-column:auto}}

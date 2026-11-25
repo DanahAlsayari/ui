@@ -145,48 +145,132 @@ def get_cluster_model():
 # Prompt templates used by the GenAI recommendations endpoint
 # -----------------------------------------------------------------------------
 ZERO_SHOT="""You are a customer retention analyst preparing a concise report for business executives.
-Task: Analyze the customer's churn prediction and available customer features. Provide practical retention recommendations and explain the strategic reason behind each recommendation.
+
+Task:
+Analyze the customer's churn prediction and available customer features. Provide practical retention recommendations
+
 Customer Information:
 - Churn Prediction: {churn_prediction}
 - Churn Probability: {churn_probability}
 - Recency Days: {recency_days}
 - Loyalty Score: {loyalty_score}
 - Cart Abandonment Rate: {cart_abandonment_rate}
-Instructions: Summarize the model-estimated churn risk; identify relevant observations; recommend exactly two actionable, tailored retention strategies. Then explain each recommendation separately, explicitly connecting it to the supplied customer indicators and explaining why the action is relevant.
-Constraints: Use only supplied information. Do not invent facts or claim causation. Treat probability as a model estimate, not certainty. Avoid guarantees. Acknowledge limitations. Do not add sections.
-Required format:
+
+Instructions:
+1. Summarize the customer's estimated churn risk.
+2. Identify relevant observations from the provided customer information.
+3. Recommend exactly two actionable retention strategies tailored to the customer.
+4. Briefly explain the rationale for each strategy.
+5. Use clear, professional, executive-friendly English.
+
+Constraints:
+- Use only the information provided.
+- Do not invent customer details or business facts.
+- Do not assume that observed features cause churn.
+- Treat churn probability as a model estimate, not a certainty.
+- Avoid unsupported guarantees about outcomes.
+- If information is insufficient, state the limitation.
+- Do not include extra sections.
+
+Required Output Format:
+
 Risk Summary:
-[Concise summary of the estimated churn risk and relevant supplied indicators]
+[Concise summary of the predicted risk]
+
 Retention Recommendations:
-1. [Specific action]
-2. [Specific action]
-Strategic Explanations:
-1. [Why recommendation 1 is relevant, linked to the customer's supplied indicators]
-2. [Why recommendation 2 is relevant, linked to the customer's supplied indicators]"""
-FEW_SHOT="""You are a customer retention analyst. Follow the examples' structure and tone. Use only the new customer's supplied values.
-Example 1: Churn Prediction 1; Probability 82%; Recency 50 days; Loyalty 20; Cart Abandonment 75%.
-Risk Summary: The model estimates an 82% churn probability, indicating elevated predicted risk. The supplied indicators include 50 recency days, loyalty score 20, and cart abandonment 75%.
+1. [Action and short rationale]
+2. [Action and short rationale]
+
+Strategic Rationale:
+[Brief explanation of why the actions are relevant]"""
+FEW_SHOT="""You are a customer retention analyst preparing a concise report for business executives.
+
+Task:
+Analyze the customer's churn prediction and available customer features. Provide practical retention recommendations.
+
+Instructions:
+1. Summarize the customer's estimated churn risk.
+2. Identify relevant observations from the provided customer information.
+3. Recommend exactly two actionable retention strategies tailored to the customer.
+4. Briefly explain the rationale for each strategy.
+5. Use clear, professional, executive-friendly English.
+
+Constraints:
+- Use only the provided customer information.
+- Do not invent facts about the customer.
+- Do not claim that customer features cause churn.
+- Treat churn probability as a model estimate, not a guaranteed outcome.
+- If information is insufficient, acknowledge it.
+- Do not include additional sections.
+
+Required Output Format:
+
+Risk Summary:
+[Summarize the predicted churn risk]
+
 Retention Recommendations:
-1. Send a personalized re-engagement message with a relevant return offer.
-2. Offer checkout assistance or a reminder.
-Strategic Explanations:
-1. The 50 recency days provide a reason to consider re-engagement. The recommendation responds to the observed recency value without assuming why the customer has been inactive.
-2. The 75% cart abandonment rate makes checkout assistance or a reminder relevant to the observed checkout behavior. It does not prove why carts were abandoned.
-Example 2: Churn Prediction 0; Probability 18%; Recency 5 days; Loyalty 85; Cart Abandonment 10%.
-Risk Summary: The model estimates an 18% churn probability, indicating relatively low predicted risk.
+1. [Action and brief rationale]
+2. [Action and brief rationale]
+
+Strategic Rationale:
+[Explain how the recommendations relate to the data]
+
+Example 1:
+Customer Information:
+- Churn Prediction: 1
+- Churn Probability: 82%
+- Recency Days: 50
+- Loyalty Score: 20
+- Cart Abandonment Rate: 75%
+
+Risk Summary:
+The model estimates an 82% churn probability for this customer, indicating elevated predicted churn risk. The available data show 50 recency days, a loyalty score of 20, and a cart abandonment rate of 75%.
+
 Retention Recommendations:
-1. Maintain light-touch loyalty communication.
-2. Offer an appreciation message or optional loyalty benefit.
-Strategic Explanations:
-1. The 85 loyalty score supports maintaining the relationship through light-touch loyalty communication rather than assuming intensive recovery is needed.
-2. The 18% estimated churn probability and 5 recency days support a maintenance-oriented approach; an appreciation message can acknowledge the existing relationship without guaranteeing retention.
-Now analyze this customer:
+1. Send a personalized re-engagement message with a relevant return offer, given the 50 recency days.
+2. Offer a checkout assistance message or reminder, considering the 75% cart abandonment rate.
+
+Strategic Rationale:
+The first action addresses the customer's recent inactivity, while the second focuses on their observed cart abandonment behavior. These are suggested interventions, not guaranteed solutions.
+
+Example 2:
+Customer Information:
+- Churn Prediction: 0
+- Churn Probability: 18%
+- Recency Days: 5
+- Loyalty Score: 85
+- Cart Abandonment Rate: 10%
+
+Risk Summary:
+The model estimates an 18% churn probability for this customer, indicating relatively low predicted churn risk. The available data show 5 recency days, a loyalty score of 85, and a cart abandonment rate of 10%.
+
+Retention Recommendations:
+1. Maintain light-touch loyalty communication, considering the customer's loyalty score of 85.
+2. Offer an optional loyalty benefit or appreciation message to support continued engagement without excessive outreach.
+
+Strategic Rationale:
+The recommendations prioritize maintaining engagement rather than intensive recovery efforts because the model estimates relatively low churn risk.
+
+Now analyze the following customer using the same instructions and output format.
+
+Customer Information:
 - Churn Prediction: {churn_prediction}
 - Churn Probability: {churn_probability}
 - Recency Days: {recency_days}
 - Loyalty Score: {loyalty_score}
 - Cart Abandonment Rate: {cart_abandonment_rate}
-Use the exact sections Risk Summary, Retention Recommendations (exactly two), and Strategic Explanations (exactly two, one corresponding to each recommendation). Make every explanation explicitly refer to relevant supplied customer indicators. Be concise, factual, and executive-friendly. Do not invent facts, infer causation, or guarantee outcomes."""
+
+Required Output Format:
+
+Risk Summary:
+[Summarize the predicted risk]
+
+Retention Recommendations:
+1. [Action and brief rationale]
+2. [Action and brief rationale]
+
+Strategic Rationale:
+[Explain how the recommendations relate to the data]"""
 
 # -----------------------------------------------------------------------------
 # GenAI request schema and API routes

@@ -185,7 +185,6 @@ export default function ChurnPrediction({ apiUrl }) {
               <div>
                 <span className="field-label">PREDICTED CUSTOMER STATUS</span>
                 <h3>{result.churn_label}</h3>
-                <p>Phase 1 · Baseline Logistic Regression</p>
               </div>
               <div className="probability">
                 <strong>{(result.churn_probability * 100).toFixed(1)}%</strong>
@@ -195,7 +194,6 @@ export default function ChurnPrediction({ apiUrl }) {
             <div className="probability-track">
               <i style={{ width: `${result.churn_probability * 100}%` }} />
             </div>
-            <p className="fine-print">Prediction class: 1 = Churn · 0 = Retained</p>
           </div>
           );
         })()}

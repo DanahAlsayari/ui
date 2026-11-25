@@ -258,7 +258,6 @@ export default function CustomerSegments({ apiUrl }) {
                       aria-invalid={Boolean(validationErrors[field.name])}
                       placeholder={`Range: ${Number(field.min).toLocaleString("en-US")} – ${Number(field.max).toLocaleString("en-US")}`}
                       className="range-placeholder"
-                      aria-invalid={Boolean(validationErrors[field.name])}
                       onChange={(event) => updateField(field.name, event.target.value, "number")}
                     />
                   )}

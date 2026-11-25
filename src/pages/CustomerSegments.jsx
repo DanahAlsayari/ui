@@ -353,9 +353,6 @@ export default function CustomerSegments({ apiUrl }) {
             <small>Compare against each cluster’s average {activeAttribute.label.toLowerCase()}</small>
           </label>
           <div className="segment-filter-summary">
-            <strong>{filteredRows.length}</strong>
-            <span>of {rows.length} clusters match</span>
-            <button type="button" className="text-button" onClick={() => { setFilterAttribute("email_open_rate"); setFilterDirection("below"); setFilterThreshold(0.4); }}>Reset filter</button>
           </div>
         </div>
         <div className="cluster-filter-results">

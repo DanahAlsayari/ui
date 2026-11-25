@@ -28,7 +28,7 @@ const clusterDescriptions = {
 export default function CustomerSegments({ apiUrl }) {
   const [segmentData, setSegmentData] = useState(null);
   const [error, setError] = useState("");
-  const emptyCustomer = Object.fromEntries(fields.map((field) => [field.name, ""]));
+  const emptyCustomer = Object.fromEntries(fields.map((field) => [field.name, ["discount_usage_rate", "email_open_rate", "cart_abandonment_rate"].includes(field.name) ? field.min : ""]));
   const [formData, setFormData] = useState(emptyCustomer);
   const [result, setResult] = useState(null);
   const [predicting, setPredicting] = useState(false);
@@ -70,7 +70,16 @@ export default function CustomerSegments({ apiUrl }) {
         body: JSON.stringify(formData),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.detail || "Could not identify this customer's cluster.");
+      if (!response.ok) {
+        const detail = payload.detail;
+        const message = Array.isArray(detail)
+          ? detail.map((item) => {
+              const field = Array.isArray(item.loc) ? item.loc.filter((part) => part !== "body").join(".") : "Input";
+              return String(field) + ": " + (item.msg || "Invalid value");
+            }).join(" · ")
+          : typeof detail === "string" ? detail : "Could not identify this customer's cluster.";
+        throw new Error(message);
+      }
       setResult(payload);
     } catch (requestError) {
       setPredictError(requestError.message);
@@ -164,6 +173,7 @@ export default function CustomerSegments({ apiUrl }) {
                   <span>{field.label}</span>
                   {field.type === "select" ? (
                     <select
+                      required
                       value={formData[field.name]}
                       onChange={(event) => updateField(field.name, event.target.value, "select")}
                     >

@@ -10,7 +10,7 @@ export default function Overview({ health }) {
       <PageHeading
         eyebrow="EXECUTIVE DECISION SUPPORT"
         title="Overview"
-        subtitle="A summary of customer churn, behavioral signals, and retention opportunities."
+       
       />
 
       {/* Platform introduction banner, matching the GenAI hero design. */}
@@ -21,6 +21,7 @@ export default function Overview({ health }) {
           <p>
             Explore customer behavior, identify churn patterns, and discover
             actionable insights to support smarter retention strategies.
+
           </p>
         </div>
         <div className="hero-orb"><BrainCircuit size={55} /></div>
@@ -29,6 +30,7 @@ export default function Overview({ health }) {
       {/* KPI summaries provide a quick snapshot of customer churn and retention. */}
       <section className="overview-section">
         <div className="overview-section-heading">
+      
           <h2>KPI summaries</h2>
           <p>Key performance indicators from the team's analysis.</p>
         </div>

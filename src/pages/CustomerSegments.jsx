@@ -176,37 +176,8 @@ export default function CustomerSegments({ apiUrl }) {
           </div>
         )}
 
-        <div className="segment-filter-panel attribute-filter-panel">
-          <label className="segment-filter-control">
-            <span>Customer attribute</span>
-            <select value={filterAttribute} onChange={(event) => {
-              const next = event.target.value;
-              setFilterAttribute(next);
-              setFilterThreshold(attributeFilters[next].unit === "%" ? 0.4 : attributeFilters[next].max / 2);
-            }}>
-              {Object.entries(attributeFilters).map(([key, item]) => <option key={key} value={key}>{item.label}</option>)}
-            </select>
-          </label>
-          <label className="segment-filter-control">
-            <span>Condition</span>
-            <select value={filterDirection} onChange={(event) => setFilterDirection(event.target.value)}>
-              <option value="below">Below or equal to</option>
-              <option value="above">Above or equal to</option>
-            </select>
-          </label>
-          <label className="segment-filter-control segment-attribute-threshold">
-            <span>Threshold <strong>{formatAttributeValue(filterThreshold)}</strong></span>
-            <input type="range" min={activeAttribute.min} max={activeAttribute.max} step={activeAttribute.step} value={filterThreshold} onChange={(event) => setFilterThreshold(Number(event.target.value))} />
-            <small>Compare against each cluster’s average {activeAttribute.label.toLowerCase()}</small>
-          </label>
-          <div className="segment-filter-summary">
-            <strong>{filteredRows.length}</strong>
-            <span>of {rows.length} clusters match</span>
-            <button type="button" className="text-button" onClick={() => { setFilterAttribute("email_open_rate"); setFilterDirection("below"); setFilterThreshold(0.4); }}>Reset filter</button>
-          </div>
-        </div>
         <div className="segment-cards cluster-profile-cards">
-          {filteredRows.length ? filteredRows.map((segment, index) => {
+          {rows.length ? rows.map((segment, index) => {
             const originalIndex = rows.findIndex((item) => item.name === segment.name);
             const color = clusterColors[originalIndex % clusterColors.length];
             const churnRate = Number(segment.churn_rate ?? segment.churn);
@@ -226,10 +197,6 @@ export default function CustomerSegments({ apiUrl }) {
                   <span>Observed churn rate</span>
                   <b>{churnRate.toFixed(2)}%</b>
                 </div>
-                <div className="segment-attribute-match">
-                  <span>{activeAttribute.label} average</span>
-                  <b>{formatAttributeValue(segment.profile[filterAttribute])}</b>
-                </div>
                 <p>{description}</p>
                 <div className="segment-action">
                   <b>Recommended action</b>
@@ -242,7 +209,7 @@ export default function CustomerSegments({ apiUrl }) {
               </article>
             );
           }) : (
-            <div className="empty-filter-state">No customer segments match these filters. Adjust the cluster or churn-rate selection.</div>
+            <div className="empty-filter-state">No customer segment profiles are available.</div>
           )}
         </div>
       </section>
@@ -351,6 +318,60 @@ export default function CustomerSegments({ apiUrl }) {
               </div>
               <small className="cluster-result-note">{result.note}</small>
             </div>
+          )}
+        </div>
+      </section>
+      <section className="cluster-section cluster-filter-section">
+        <div className="cluster-section-heading">
+          <div>
+            <span className="section-kicker">03 · EXPLORE THE SEGMENTS</span>
+            <h2>Filter Clusters by Customer Attributes</h2>
+            <p>Find clusters whose average attribute values match your selected condition.</p>
+          </div>
+        </div>
+        <div className="segment-filter-panel attribute-filter-panel">
+          <label className="segment-filter-control">
+            <span>Customer attribute</span>
+            <select value={filterAttribute} onChange={(event) => {
+              const next = event.target.value;
+              setFilterAttribute(next);
+              setFilterThreshold(attributeFilters[next].unit === "%" ? 0.4 : attributeFilters[next].max / 2);
+            }}>
+              {Object.entries(attributeFilters).map(([key, item]) => <option key={key} value={key}>{item.label}</option>)}
+            </select>
+          </label>
+          <label className="segment-filter-control">
+            <span>Condition</span>
+            <select value={filterDirection} onChange={(event) => setFilterDirection(event.target.value)}>
+              <option value="below">Below or equal to</option>
+              <option value="above">Above or equal to</option>
+            </select>
+          </label>
+          <label className="segment-filter-control segment-attribute-threshold">
+            <span>Threshold <strong>{formatAttributeValue(filterThreshold)}</strong></span>
+            <input type="range" min={activeAttribute.min} max={activeAttribute.max} step={activeAttribute.step} value={filterThreshold} onChange={(event) => setFilterThreshold(Number(event.target.value))} />
+            <small>Compare against each cluster’s average {activeAttribute.label.toLowerCase()}</small>
+          </label>
+          <div className="segment-filter-summary">
+            <strong>{filteredRows.length}</strong>
+            <span>of {rows.length} clusters match</span>
+            <button type="button" className="text-button" onClick={() => { setFilterAttribute("email_open_rate"); setFilterDirection("below"); setFilterThreshold(0.4); }}>Reset filter</button>
+          </div>
+        </div>
+        <div className="cluster-filter-results">
+          {filteredRows.length ? filteredRows.map((segment) => {
+            const originalIndex = rows.findIndex((item) => item.name === segment.name);
+            const color = clusterColors[originalIndex % clusterColors.length];
+            const value = segment.profile?.[filterAttribute];
+            return (
+              <div className="cluster-filter-result" key={segment.name} style={{ "--cluster-accent": color }}>
+                <i />
+                <b>{segment.name}</b>
+                <span>{activeAttribute.label}: {formatAttributeValue(value)}</span>
+              </div>
+            );
+          }) : (
+            <div className="empty-filter-state">No clusters match this condition. Try adjusting the attribute or threshold.</div>
           )}
         </div>
       </section>

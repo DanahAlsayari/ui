@@ -1,8 +1,9 @@
 import React from "react";
+import { BrainCircuit, Sparkles } from "lucide-react";
 import { drivers, kpis } from "../data";
 import { PageHeading, StatCards } from "../components/Layout";
 
-// Overview page: headline KPIs, key churn drivers, and backend connectivity.
+// Overview page: platform introduction, headline KPIs, churn drivers, and connectivity.
 export default function Overview({ health }) {
   return (
     <>
@@ -12,7 +13,20 @@ export default function Overview({ health }) {
         subtitle="A summary of customer churn, behavioral signals, and retention opportunities."
       />
 
-      {/* KPI summaries provide a quick snapshot of the project dataset and model. */}
+      {/* Platform introduction banner, matching the GenAI hero design. */}
+      <section className="hero-banner">
+        <div className="hero-copy">
+          <span><Sparkles size={12} /> CCO RETAIL INTELLIGENCE PLATFORM</span>
+          <h2>From customer insights<br />to smarter decisions.</h2>
+          <p>
+            Explore customer behavior, identify churn patterns, and discover
+            actionable insights to support smarter retention strategies.
+          </p>
+        </div>
+        <div className="hero-orb"><BrainCircuit size={55} /></div>
+      </section>
+
+      {/* KPI summaries provide a quick snapshot of customer churn and retention. */}
       <section className="overview-section">
         <div className="overview-section-heading">
           <h2>KPI summaries</h2>

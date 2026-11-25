@@ -275,8 +275,14 @@ Strategic Rationale:
 # -----------------------------------------------------------------------------
 # GenAI request schema and API routes
 # -----------------------------------------------------------------------------
+class InsightCustomerContext(BaseModel):
+ model_config=ConfigDict(extra="forbid")
+ recency_days:int=Field(ge=0,le=10000)
+ loyalty_score:float=Field(ge=0,le=100)
+ cart_abandonment_rate:float=Field(ge=0,le=1)
+
 class InsightRequest(BaseModel):
- customer:CustomerInput
+ customer:InsightCustomerContext
  method:str=Field(pattern="^(Zero-shot|Few-shot)$")
  churn_probability:float=Field(ge=0,le=1)
  churn_prediction:int=Field(ge=0,le=1)

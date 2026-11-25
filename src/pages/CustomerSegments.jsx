@@ -151,7 +151,6 @@ export default function CustomerSegments({ apiUrl }) {
             <span className="section-kicker">02 · APPLY THE MODEL</span>
             <h2>Find a Customer's Cluster</h2>
           </div>
-          <span className="model-live-label"><i /> MODEL-POWERED</span>
         </div>
 
         <div className="panel cluster-form-panel">

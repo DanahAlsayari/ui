@@ -20,6 +20,26 @@ export default function ChurnPrediction({ apiUrl }) {
     setError("");
   }
 
+  // Temporary demo profiles for quickly testing both prediction outcomes.
+  const demoProfiles = {
+    churn: {
+      age_group:"35-44", gender:"Male", region:"Central", customer_segment:"New", preferred_channel:"Online",
+      purchase_frequency:1, avg_order_value:120, total_spent:120, recency_days:900, website_visits:3,
+      discount_usage_rate:0.95, email_open_rate:0.05, cart_abandonment_rate:0.95, loyalty_score:5, engagement_score:5,
+    },
+    retained: {
+      age_group:"35-44", gender:"Female", region:"Central", customer_segment:"Loyal", preferred_channel:"Mobile App",
+      purchase_frequency:30, avg_order_value:250, total_spent:7500, recency_days:3, website_visits:150,
+      discount_usage_rate:0.10, email_open_rate:0.90, cart_abandonment_rate:0.05, loyalty_score:95, engagement_score:95,
+    },
+  };
+
+  function fillDemoProfile(profile) {
+    setCustomer(Object.fromEntries(Object.entries(demoProfiles[profile]).map(([key, value]) => [key, String(value)])));
+    setResult(null);
+    setError("");
+  }
+
   // Submit the customer profile to the FastAPI prediction endpoint.
   async function handleSubmit(event) {
     event.preventDefault();
@@ -85,6 +105,11 @@ export default function ChurnPrediction({ apiUrl }) {
             <p>Enter the customer’s feature values to predict their churn risk.</p>
           </div>
         
+        </div>
+
+        <div className="demo-fill-actions" style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}}>
+          <button type="button" className="secondary-button" onClick={() => fillDemoProfile("churn")}>Test: Churn Customer</button>
+          <button type="button" className="secondary-button" onClick={() => fillDemoProfile("retained")}>Test: Retained Customer</button>
         </div>
 
         {/* The field definitions live in data.js to keep this page easy to scan. */}

@@ -5,6 +5,30 @@ import { genaiMethods, initialCustomer } from "../data";
 import { PageHeading, Notice } from "../components/Layout";
 
 // Combines a churn prediction with Gemini to generate a customer retention briefing.
+function parseExecutiveReport(rawReport) {
+  const headings = ["Risk Summary", "Retention Recommendations", "Strategic Explanations"];
+  const sections = [];
+  let current = null;
+  String(rawReport || "").split(/\r?\n/).forEach((rawLine) => {
+    const line = rawLine.trim();
+    if (!line) return;
+    const heading = headings.find((item) => line.toLowerCase().startsWith(item.toLowerCase() + ":"));
+    if (heading) {
+      current = { title: heading, items: [] };
+      sections.push(current);
+      const remainder = line.slice(heading.length + 1).trim();
+      if (remainder) current.items.push(remainder);
+      return;
+    }
+    if (!current) {
+      current = { title: "Executive Briefing", items: [] };
+      sections.push(current);
+    }
+    current.items.push(line.replace(/^\d+[.)]\s*/, ""));
+  });
+  return sections;
+}
+
 export default function GenAIRecommendations({ apiUrl }) {
   const [method, setMethod] = useState("Few-shot");
   const [customer, setCustomer] = useState(initialCustomer);
@@ -179,7 +203,28 @@ export default function GenAIRecommendations({ apiUrl }) {
                 <CheckCircle2 size={15} />
                 {report.provider} · {report.model} · {report.method}
               </div>
-              <pre>{report.report}</pre>
+              <div className="report-sections">
+                {parseExecutiveReport(report.report).map((section, sectionIndex) => (
+                  <section className={`report-section report-section-${sectionIndex}`} key={section.title}>
+                    <div className="report-section-heading">
+                      <span className="report-section-number">0{sectionIndex + 1}</span>
+                      <h4>{section.title}</h4>
+                    </div>
+                    {section.title === "Risk Summary" ? (
+                      <p className="report-risk-copy">{section.items.join(" ")}</p>
+                    ) : (
+                      <ol className="report-action-list">
+                        {section.items.map((item, index) => (
+                          <li key={index}>
+                            <span className="report-item-number">{index + 1}</span>
+                            <p>{item}</p>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </section>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="empty-brief">

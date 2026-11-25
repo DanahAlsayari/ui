@@ -173,8 +173,9 @@ export default function ChurnPrediction({ apiUrl }) {
 
         {/* Display the API response only after a successful prediction. */}
         {result && (() => {
-          const churnProbability = Number(result.churn_probability) || 0;
+          const churnProbability = Math.min(1, Math.max(0, Number(result.churn_probability) || 0));
           const isChurned = Number(result.churn_prediction) === 1;
+          const predictionConfidence = Math.max(churnProbability, 1 - churnProbability);
           const churnTone = isChurned ? "high" : "low";
           return (
             <div className={`prediction-result prediction-result-${churnTone}`}>
@@ -184,14 +185,18 @@ export default function ChurnPrediction({ apiUrl }) {
                   <h3>{result.churn_label}</h3>
                 </div>
                 <div className="probability">
-                  <strong>{(churnProbability * 100).toFixed(1)}%</strong>
-                  <small>Model-estimated churn probability</small>
+                  <strong>{(predictionConfidence * 100).toFixed(1)}%</strong>
+                  <small>Prediction confidence</small>
                 </div>
               </div>
               <div className="probability-track">
-                <i style={{ width: `${churnProbability * 100}%` }} />
+                <i style={{ width: `${predictionConfidence * 100}%` }} />
               </div>
-              <p className="probability-note">This percentage is the model’s estimated probability that the customer belongs to the churn class. It is not a separate confidence score or a guarantee of the customer’s future behavior.</p>
+              <div className="prediction-confidence-details">
+                <span>Predicted class: <b>{result.churn_label}</b></span>
+                <span>Churn probability: <b>{(churnProbability * 100).toFixed(1)}%</b></span>
+              </div>
+              <p className="probability-note">Confidence is the model’s estimated probability for the predicted class (the higher of the two class probabilities). It is not a guarantee that the prediction is correct.</p>
               <p className="result-explanation">
                 {isChurned
                   ? "This customer is predicted to leave. Consider taking retention actions."

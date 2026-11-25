@@ -256,7 +256,7 @@ export default function CustomerSegments({ apiUrl }) {
           {result && (
             <div className="cluster-result-panel" style={{ "--cluster-accent": clusterColors[result.cluster] || clusterColors[0], "--cluster-tint": clusterTints[result.cluster] || clusterTints[0], "--cluster-border": clusterBorders[result.cluster] || clusterBorders[0] }}>
               <div className="cluster-result-top">
-                <div className="cluster-result-check"><CheckCircle2 size={18} /></div>
+                <div className="cluster-result-check"><CheckCircle2 size={24} strokeWidth={2.5} /></div>
                 <div>
                   <span className="section-kicker">MODEL ASSIGNMENT COMPLETE</span>
                   <h3>{result.cluster_name}</h3>

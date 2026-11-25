@@ -176,7 +176,14 @@ export default function CustomerSegments({ apiUrl }) {
                   <b>{churnRate.toFixed(2)}%</b>
                 </div>
                 <p>{description}</p>
-                <span className="soft-tag">{segment.priority || "K-MEANS PROFILE"}</span>
+                <div className="segment-action">
+                  <b>Recommended action</b>
+                  <span>{{
+                    "High-Volume Buyers": "Protect loyalty with exclusive rewards.",
+                    "Low-Engagement Customers": "Prioritize re-engagement and recover abandoned carts.",
+                    "Engaged Light Buyers": "Use relevant recommendations to increase purchase frequency."
+                  }[segment.name] || "Use targeted engagement to improve retention."}</span>
+                </div>
               </article>
             );
           })}

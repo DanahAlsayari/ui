@@ -203,7 +203,7 @@ export const customerFields = [
     name: "gender",
     label: "Gender",
     type: "select",
-    options: ["Female", "Male"],
+    options: ["Female", "Male", "Other"],
   },
   {
     name: "region",

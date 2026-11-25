@@ -2613,3 +2613,15 @@ footer i {
 .prediction-confidence-details b{color:#354158}
 @media(max-width:900px){.attribute-filter-panel{grid-template-columns:1fr 1fr}.attribute-filter-panel .segment-filter-summary{grid-column:1/-1}}
 @media(max-width:600px){.attribute-filter-panel{grid-template-columns:1fr}.attribute-filter-panel .segment-filter-summary{grid-column:auto}}
+
+
+/* Third Customer Segments section: compact attribute-filter matches. */
+.cluster-filter-section{margin-top:30px;padding-top:25px;border-top:1px solid #edf0f5}
+.cluster-filter-section .cluster-section-heading p{margin-top:5px}
+.cluster-filter-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:13px}
+.cluster-filter-result{display:flex;min-width:0;align-items:center;gap:9px;padding:13px 14px;border:1px solid #edf0f5;border-left:3px solid var(--cluster-accent);border-radius:10px;background:#fff}
+.cluster-filter-result i{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:var(--cluster-accent)}
+.cluster-filter-result b{min-width:0;color:#354158;font-size:11px}
+.cluster-filter-result span{margin-left:auto;color:#7d889a;font-size:10px;text-align:right;white-space:nowrap}
+@media(max-width:900px){.cluster-filter-results{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.cluster-filter-results{grid-template-columns:1fr}.cluster-filter-result{flex-wrap:wrap}.cluster-filter-result span{margin-left:17px}}

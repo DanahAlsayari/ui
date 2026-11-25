@@ -1659,6 +1659,25 @@ footer i {
     gap: 7px
 }
 
+.customer-field.has-error input,
+.customer-field.has-error select {
+    border-color: #d96b72;
+    background: #fffafa;
+}
+
+.customer-field.has-error .customer-slider {
+    border: 1px solid #d96b72;
+    border-radius: 8px;
+    padding: 7px;
+}
+
+.field-validation-error {
+    color: #c6535b;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
 .customer-field>span {
     font-size: 9px;
     font-weight: 700;

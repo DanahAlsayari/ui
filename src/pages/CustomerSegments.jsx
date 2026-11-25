@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { AlertTriangle, ArrowRight, BrainCircuit, CheckCircle2, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
-import { clusteringResults, customerFields as fields, segments as fallbackSegments } from "../data";
+import { customerFields as fields, segments as fallbackSegments } from "../data";
 import { PageHeading, Notice } from "../components/Layout";
 
 const clusterColors = ["#756BF6", "#39B7A4", "#F0B75E"];
@@ -273,41 +273,7 @@ export default function CustomerSegments({ apiUrl }) {
         </div>
       </section>
 
-      <div className="content-grid segment-grid cluster-validation-grid">
-        <section className="panel">
-          <div className="panel-heading">
-            <div>
-              <h3>Clustering algorithm comparison</h3>
-              <p>Internal validation metrics from Phase 2.</p>
-            </div>
-          </div>
-          <div className="table-wrap">
-            <table>
-              <thead><tr><th>Algorithm</th><th>Clusters</th><th>Silhouette</th><th>Davies–Bouldin</th></tr></thead>
-              <tbody>
-                {clusteringResults.map((row) => (
-                  <tr key={row.name}>
-                    <td><b>{row.name}</b></td><td>{row.clusters}</td><td>{row.silhouette}</td><td>{row.daviesBouldin}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <section className="panel">
-          <div className="panel-heading">
-            <div><h3>Priority segment</h3><p>Highest observed churn rate.</p></div>
-            <span className="soft-tag">K-MEANS</span>
-          </div>
-          <div className="assessment">
-            <div className="risk-ring" style={{ "--risk": "54.11%" }}>
-              <div><b>54.11%</b><small>Churn rate</small></div>
-            </div>
-            <span className="status high">Low-Engagement Customers</span>
-            <p>31,485 customers · 17,036 churned. The project interpretation prioritizes this group for re-engagement.</p>
-          </div>
-        </section>
-      </div>
+
     </>
   );
 }

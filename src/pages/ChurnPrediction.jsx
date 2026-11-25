@@ -153,14 +153,14 @@ export default function ChurnPrediction({ apiUrl }) {
         {/* Display the API response only after a successful prediction. */}
         {result && (() => {
           const churnProbability = Number(result.churn_probability) || 0;
-          const churnTone = churnProbability < 0.4 ? "low" : churnProbability < 0.7 ? "medium" : "high";
+          const churnTone = Number(result.churn_prediction) === 1 ? "high" : "low";
           return (
           <div className={`prediction-result prediction-result-${churnTone}`}>
             <div className="result-top">
               <div>
                 <span className="field-label">PREDICTED CUSTOMER STATUS</span>
                 <h3>{result.churn_label}</h3>
-                <p>{result.risk_level} estimated risk · Logistic Regression baseline</p>
+                <p>Phase 1 · Baseline Logistic Regression</p>
               </div>
               <div className="probability">
                 <strong>{(result.churn_probability * 100).toFixed(1)}%</strong>
@@ -170,7 +170,7 @@ export default function ChurnPrediction({ apiUrl }) {
             <div className="probability-track">
               <i style={{ width: `${result.churn_probability * 100}%` }} />
             </div>
-            <p className="fine-print">{result.note}</p>
+            <p className="fine-print">Prediction class: 1 = Churn · 0 = Retained</p>
           </div>
           );
         })()}

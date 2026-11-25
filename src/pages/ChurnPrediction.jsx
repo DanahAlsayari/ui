@@ -191,7 +191,6 @@ export default function ChurnPrediction({ apiUrl }) {
               <div className="probability-track">
                 <i style={{ width: `${churnProbability * 100}%` }} />
               </div>
-              <p className="probability-note">This percentage is the model’s estimated probability that the customer belongs to the churn class. It is not a separate confidence score or a guarantee of the customer’s future behavior.</p>
               <p className="result-explanation">
                 {isChurned
                   ? "This customer is predicted to leave. Consider taking retention actions."
@@ -207,7 +206,7 @@ export default function ChurnPrediction({ apiUrl }) {
         <div className="panel-heading">
           <div>
             <h3>Model Evaluation Metrics</h3>
-            <p>Offline test-set performance of the selected Logistic Regression baseline. These metrics describe overall model performance, not confidence in this individual prediction.</p>
+            <p>Test-set performance of the selected Logistic Regression baseline. These metrics describe overall model performance.</p>
           </div>
           <span className="soft-tag">SELECTED MODEL</span>
         </div>

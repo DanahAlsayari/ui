@@ -2308,9 +2308,9 @@ footer i {
 
 .cluster-result-panel {
     margin-top: 20px;
-    border: 1px solid #dcefe8;
+    border: 1px solid var(--cluster-border, #dcefe8);
     border-radius: 13px;
-    background: #f8fcfa;
+    background: var(--cluster-tint, #f8fcfa);
     padding: 17px
 }
 
@@ -2327,8 +2327,8 @@ footer i {
     flex-shrink: 0;
     place-items: center;
     border-radius: 10px;
-    background: #e8f6ef;
-    color: #2d9a77
+    background: var(--cluster-tint, #e8f6ef);
+    color: var(--cluster-accent, #2d9a77)
 }
 
 .cluster-result-top>div:nth-child(2) {
@@ -2337,7 +2337,7 @@ footer i {
 
 .cluster-result-top h3 {
     margin: 4px 0;
-    color: #253149;
+    color: var(--cluster-accent, #253149);
     font-family: Manrope, sans-serif;
     font-size: 19px
 }
@@ -2356,7 +2356,7 @@ footer i {
 
 .cluster-result-reasons {
     margin-top: 17px;
-    border-top: 1px solid #e6f0eb;
+    border-top: 1px solid var(--cluster-border, #e6f0eb);
     padding-top: 13px
 }
 
@@ -2381,7 +2381,7 @@ footer i {
     flex-shrink: 0;
     margin-top: 5px;
     border-radius: 50%;
-    background: #45a98a
+    background: var(--cluster-accent, #45a98a)
 }
 
 .cluster-result-note {

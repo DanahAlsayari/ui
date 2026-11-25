@@ -92,11 +92,8 @@ export default function ChurnPrediction({ apiUrl }) {
   return (
     <>
       <PageHeading
-    
         title="Customer churn prediction"
       />
-
-
 
       <form className="panel customer-form" onSubmit={handleSubmit}>
         <div className="panel-heading">
@@ -104,7 +101,6 @@ export default function ChurnPrediction({ apiUrl }) {
             <h3>Customer profile</h3>
             <p>Enter the customer’s feature values to predict their churn risk.</p>
           </div>
-        
         </div>
 
         <div className="demo-fill-actions" style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}}>
@@ -178,23 +174,29 @@ export default function ChurnPrediction({ apiUrl }) {
         {/* Display the API response only after a successful prediction. */}
         {result && (() => {
           const churnProbability = Number(result.churn_probability) || 0;
-          const churnTone = Number(result.churn_prediction) === 1 ? "high" : "low";
+          const isChurned = Number(result.churn_prediction) === 1;
+          const churnTone = isChurned ? "high" : "low";
           return (
-          <div className={`prediction-result prediction-result-${churnTone}`}>
-            <div className="result-top">
-              <div>
-                <span className="field-label">PREDICTED CUSTOMER STATUS</span>
-                <h3>{result.churn_label}</h3>
+            <div className={`prediction-result prediction-result-${churnTone}`}>
+              <div className="result-top">
+                <div>
+                  <span className="field-label">PREDICTED CUSTOMER STATUS</span>
+                  <h3>{result.churn_label}</h3>
+                </div>
+                <div className="probability">
+                  <strong>{(churnProbability * 100).toFixed(1)}%</strong>
+                  <small>Churn probability</small>
+                </div>
               </div>
-              <div className="probability">
-                <strong>{(result.churn_probability * 100).toFixed(1)}%</strong>
-                <small>Churn probability</small>
+              <div className="probability-track">
+                <i style={{ width: `${churnProbability * 100}%` }} />
               </div>
+              <p className="result-explanation">
+                {isChurned
+                  ? "This customer is predicted to leave. Consider taking retention actions."
+                  : "This customer is predicted to stay. Keep maintaining their engagement."}
+              </p>
             </div>
-            <div className="probability-track">
-              <i style={{ width: `${result.churn_probability * 100}%` }} />
-            </div>
-          </div>
           );
         })()}
       </form>

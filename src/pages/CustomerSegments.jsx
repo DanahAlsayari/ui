@@ -50,6 +50,21 @@ export default function CustomerSegments({ apiUrl }) {
 
   const rows = segmentData?.segments || fallbackSegments;
 
+  const demoCustomers = {
+    highVolume: { age_group:"35-44", gender:"Male", region:"Central", customer_segment:"VIP", preferred_channel:"Online", purchase_frequency:25, avg_order_value:235, total_spent:5500, recency_days:10, website_visits:125, discount_usage_rate:0.20, email_open_rate:0.47, cart_abandonment_rate:0.20, loyalty_score:85, engagement_score:80 },
+    lowEngagement: { age_group:"25-34", gender:"Female", region:"West", customer_segment:"New", preferred_channel:"Mobile App", purchase_frequency:4, avg_order_value:190, total_spent:680, recency_days:180, website_visits:18, discount_usage_rate:0.70, email_open_rate:0.10, cart_abandonment_rate:0.80, loyalty_score:15, engagement_score:20 },
+    engagedLight: { age_group:"18-24", gender:"Female", region:"East", customer_segment:"Returning", preferred_channel:"Online", purchase_frequency:4, avg_order_value:196, total_spent:775, recency_days:15, website_visits:20, discount_usage_rate:0.30, email_open_rate:0.85, cart_abandonment_rate:0.15, loyalty_score:65, engagement_score:85 },
+  };
+
+  const fillDemoCustomer = (profile) => {
+    const customer = demoCustomers[profile];
+    setFormData({ ...customer });
+    setTouchedSliders({ discount_usage_rate:true, email_open_rate:true, cart_abandonment_rate:true });
+    setValidationErrors({});
+    setResult(null);
+    setPredictError("");
+  };
+
   const updateField = (name, value, type) => {
     setFormData((current) => ({ ...current, [name]: type === "select" ? value : value === "" ? "" : Number(value) }));
     if (type === "slider") setTouchedSliders((current) => ({ ...current, [name]: true }));
@@ -187,6 +202,11 @@ export default function CustomerSegments({ apiUrl }) {
           </div>
 
           <form onSubmit={identifyCluster}>
+            <div className="demo-fill-actions" style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}}>
+              <button type="button" className="secondary-button" onClick={() => fillDemoCustomer("highVolume")}>Test: High-Volume Buyer</button>
+              <button type="button" className="secondary-button" onClick={() => fillDemoCustomer("lowEngagement")}>Test: Low-Engagement</button>
+              <button type="button" className="secondary-button" onClick={() => fillDemoCustomer("engagedLight")}>Test: Engaged Light Buyer</button>
+            </div>
             <div className="customer-fields cluster-customer-fields">
               {fields.map((field) => (
                 <label className={`customer-field${validationErrors[field.name] ? " has-error" : ""}`} key={field.name}>

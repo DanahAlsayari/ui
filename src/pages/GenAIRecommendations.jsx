@@ -6,7 +6,7 @@ import { PageHeading, Notice } from "../components/Layout";
 
 // Combines a churn prediction with Gemini to generate a customer retention briefing.
 function parseExecutiveReport(rawReport) {
-  const headings = ["Risk Summary", "Retention Recommendations", "Strategic Explanations"];
+  const headings = ["Risk Summary", "Retention Recommendations", "Strategic Rationale"];
   const sections = [];
   let current = null;
   String(rawReport || "").split(/\r?\n/).forEach((rawLine) => {
@@ -210,7 +210,7 @@ export default function GenAIRecommendations({ apiUrl }) {
                       <span className="report-section-number">0{sectionIndex + 1}</span>
                       <h4>{section.title}</h4>
                     </div>
-                    {section.title === "Risk Summary" ? (
+                    {section.title === "Risk Summary" || section.title === "Strategic Rationale" ? (
                       <p className="report-risk-copy">{section.items.join(" ")}</p>
                     ) : (
                       <ol className="report-action-list">

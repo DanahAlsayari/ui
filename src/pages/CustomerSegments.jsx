@@ -67,7 +67,12 @@ export default function CustomerSegments({ apiUrl }) {
       const response = await fetch(`${apiUrl}/api/predict/cluster`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(Object.fromEntries(
+          fields.map((field) => [
+            field.name,
+            field.type === "select" ? formData[field.name] : Number(formData[field.name]),
+          ])
+        )),
       });
       const payload = await response.json();
       if (!response.ok) {

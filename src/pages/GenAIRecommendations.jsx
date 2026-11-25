@@ -74,7 +74,11 @@ export default function GenAIRecommendations({ apiUrl }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer,
+          customer: {
+            recency_days: customer.recency_days,
+            loyalty_score: customer.loyalty_score,
+            cart_abandonment_rate: customer.cart_abandonment_rate,
+          },
           method,
           churn_prediction: currentPrediction.churn_prediction,
           churn_probability: currentPrediction.churn_probability,

@@ -15,9 +15,9 @@ from pydantic import BaseModel, Field, ConfigDict
 ROOT=Path(__file__).resolve().parent
 load_dotenv(ROOT/".env")
 ARTIFACTS=ROOT/"artifacts"; ARTIFACTS.mkdir(exist_ok=True)
-MODEL_PATH=ARTIFACTS/"churn_pipeline_v2.joblib"
-TRAIN_URL=os.getenv("TRAIN_DATA_URL","https://raw.githubusercontent.com/jooryA/SWE485-Project-Group6/Interactive-UI/Dataset/Processed/train_selected.csv")
-MODEL_VERSION="baseline-logistic-regression-retrained-from-team-data-v2"
+MODEL_PATH=ARTIFACTS/"churn_phase1_baseline_lr.joblib"
+TRAIN_URL=os.getenv("TRAIN_DATA_URL","https://raw.githubusercontent.com/jooryA/SWE485-Project-Group6/main/Dataset/Processed/train_selected.csv")
+MODEL_VERSION="phase1-baseline-logistic-regression"
 app=FastAPI(title="CCO Retail Intelligence and Customer Retention Advisory System API",version="1.0.0")
 app.add_middleware(CORSMiddleware,allow_origins=os.getenv("CORS_ORIGINS","http://localhost:5173,http://127.0.0.1:5173").split(","),allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
 
@@ -208,8 +208,9 @@ def predict_churn(payload:CustomerInput):
   categorical_features=["age_group","gender","region","customer_segment","preferred_channel"]
   row[categorical_features]=row[categorical_features].astype(object)
 
-  probability=float(model.predict_proba(row)[0][1]); pred=int(probability>=0.5)
-  return {"status":"ok","model":MODEL_VERSION,"churn_prediction":pred,"churn_label":"Churn" if pred else "Retained","churn_probability":round(probability,6),"risk_level":"High" if probability>=0.7 else "Moderate" if probability>=0.4 else "Low","threshold":0.5}
+  pred=int(model.predict(row)[0])
+  probability=float(model.predict_proba(row)[0][1])
+  return {"status":"ok","model":MODEL_VERSION,"churn_prediction":pred,"churn_label":"Churn" if pred==1 else "Retained","churn_probability":round(probability,6)}
  except Exception as exc: raise HTTPException(status_code=503,detail=f"Prediction model unavailable: {exc}")
 
 # Segment endpoint: returns descriptive project profiles, not live assignments.

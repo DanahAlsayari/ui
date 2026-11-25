@@ -2483,6 +2483,7 @@ footer i {
     -webkit-appearance: none;
     width: 14px;
     height: 14px;
+    margin-top: -5px;
     border: 0;
     border-radius: 50%;
     background: #7167f8;
